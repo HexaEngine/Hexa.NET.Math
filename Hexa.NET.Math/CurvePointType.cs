@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     public enum CurvePointType
     {

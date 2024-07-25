@@ -1,4 +1,4 @@
-namespace HexaEngine.Mathematics.Noise
+namespace Hexa.NET.Mathematics.Noise
 {
     using System.Runtime.CompilerServices;
 

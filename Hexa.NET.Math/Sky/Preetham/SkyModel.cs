@@ -1,5 +1,7 @@
-﻿namespace HexaEngine.Mathematics.Sky.Preetham
+﻿namespace Hexa.NET.Mathematics.Sky.Preetham
 {
+    using Hexa.NET.Mathematics;
+    using Hexa.NET.Mathematics.Sky;
     using System.Numerics;
 
     /// <summary>

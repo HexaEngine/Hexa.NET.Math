@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics.Noise
+﻿namespace Hexa.NET.Mathematics.Noise
 {
     /// <summary>
     /// Represents a generic noise generation class using a custom algorithm.
@@ -36,7 +36,7 @@
 
         private static double Frac(double v)
         {
-            return v - double.Truncate(v);
+            return v - Math.Truncate(v);
         }
 
         private static double Dot(double x1, double y1, double x2, double y2)

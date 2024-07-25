@@ -1,5 +1,6 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
+#if NET8_0_OR_GREATER
     using System.Numerics;
     using System.Runtime.InteropServices;
 
@@ -132,4 +133,5 @@
             k = null;
         }
     }
+#endif
 }

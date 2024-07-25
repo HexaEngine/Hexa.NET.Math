@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics.Sky
+﻿namespace Hexa.NET.Mathematics.Sky
 {
     /// <summary>
     /// Enumeration representing different parameters for the Hosek-Wilkie and Preetham sky model.

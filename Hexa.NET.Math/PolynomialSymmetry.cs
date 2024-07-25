@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     /// <summary>
     /// Specifies the symmetry type of a polynomial function.

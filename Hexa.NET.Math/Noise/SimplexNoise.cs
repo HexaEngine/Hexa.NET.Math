@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics.Noise
+﻿namespace Hexa.NET.Mathematics.Noise
 {
     /// <summary>
     /// A class for generating simplex noise.

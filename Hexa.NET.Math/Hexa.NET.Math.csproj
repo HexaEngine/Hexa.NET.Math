@@ -1,15 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFrameworks>net8.0;netstandard2.1</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Configurations>Debug;Release;Minimal</Configurations>
+		<RootNamespace>Hexa.NET.Mathematicsematics</RootNamespace>
+		<LangVersion>12</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+		<IsAotCompatible>true</IsAotCompatible>
 		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 		<EnableSingleFileAnalyzer>true</EnableSingleFileAnalyzer>
 		<EnableAotAnalyzer>true</EnableAotAnalyzer>
-		<IsAotCompatible>true</IsAotCompatible>
-		<Configurations>Debug;Release;Minimal</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -27,15 +32,20 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)' != 'Minimal'">
-		<PackageVersion>1.0.0-full</PackageVersion>
+		<PackageVersion>2.0.0-full</PackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Minimal'">
-		<PackageVersion>1.0.0-minimal</PackageVersion>
+		<PackageVersion>2.0.0-minimal</PackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<Content Include="../LICENSE.txt" Pack="true" PackagePath="\" />
 		<Content Include="../README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+	  <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.4" />
 	</ItemGroup>
 </Project>

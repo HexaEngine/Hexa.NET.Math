@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics.Sky
+﻿namespace Hexa.NET.Mathematics.Sky
 {
     using System;
     using System.Numerics;

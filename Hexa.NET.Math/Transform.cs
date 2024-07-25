@@ -1,5 +1,6 @@
 ﻿#if !MINIMAL
-namespace HexaEngine.Mathematics
+
+namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
     using System.Runtime.CompilerServices;
@@ -466,7 +467,7 @@ namespace HexaEngine.Mathematics
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => (flags & TransformFlags.IsDirty) != 0;
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -491,7 +492,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockPosition) == TransformFlags.LockPosition;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -517,7 +518,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockRotation) == TransformFlags.LockRotation;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -543,7 +544,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockScale) == TransformFlags.LockScale;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -569,7 +570,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.UniformScale) == TransformFlags.UniformScale;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -595,7 +596,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockPositionX) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -621,7 +622,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockPositionY) != 0; ;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -647,7 +648,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockPositionZ) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -673,7 +674,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockRotationX) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -699,7 +700,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockRotationY) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -725,7 +726,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockRotationZ) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -751,7 +752,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockScaleX) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -777,7 +778,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockScaleY) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -803,7 +804,7 @@ namespace HexaEngine.Mathematics
             {
                 return (flags & TransformFlags.LockScaleZ) != 0;
             }
-            [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
                 if (value)
@@ -1067,7 +1068,7 @@ namespace HexaEngine.Mathematics
         /// </summary>
         /// <param name="position">The current position.</param>
         /// <returns>The modified position.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 MaskPosition(Vector3 position)
         {
             position.X = (flags & TransformFlags.LockPositionX) != 0 ? this.position.X : position.X;
@@ -1081,7 +1082,7 @@ namespace HexaEngine.Mathematics
         /// </summary>
         /// <param name="rotation">The current rotation.</param>
         /// <returns>The modified rotation.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 MaskRotation(Vector3 rotation)
         {
             rotation.X = (flags & TransformFlags.LockRotationX) != 0 ? this.rotation.X : rotation.X;
@@ -1096,7 +1097,7 @@ namespace HexaEngine.Mathematics
         /// <param name="rotation">The current rotation as a quaternion.</param>
         /// <param name="euler">The Euler angle representation of the rotation.</param>
         /// <returns>The modified rotation as a quaternion.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Quaternion MaskRotation(Quaternion rotation, out Vector3 euler)
         {
             euler = rotation.ToYawPitchRoll();
@@ -1110,7 +1111,7 @@ namespace HexaEngine.Mathematics
         /// </summary>
         /// <param name="scale">The current scale.</param>
         /// <returns>The modified scale.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Vector3 MaskScale(Vector3 scale)
         {
             scale.X = (flags & TransformFlags.LockScaleX) != 0 ? this.scale.X : scale.X;
@@ -1127,7 +1128,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local position, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetPositionOverwrite(Vector3 value)
         {
             if (position == value)
@@ -1145,7 +1146,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local rotation, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new rotation in Euler angles.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetRotationOverwrite(Vector3 value)
         {
             if (rotation == value)
@@ -1162,7 +1163,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local orientation, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new orientation.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetOrientationOverwrite(Quaternion value)
         {
             if (orientation == value)
@@ -1179,7 +1180,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local scale, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new scale.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetScaleOverwrite(Vector3 value)
         {
             if (scale == value)
@@ -1195,7 +1196,7 @@ namespace HexaEngine.Mathematics
         /// Sets the global (world space) position, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new global position.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetGlobalPositionOverwrite(Vector3 value)
         {
             if (position == value)
@@ -1225,7 +1226,7 @@ namespace HexaEngine.Mathematics
         /// Sets the global (world space) orientation, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new global orientation.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetGlobalOrientationOverwrite(Quaternion value)
         {
             if (globalOrientation == value)
@@ -1252,7 +1253,7 @@ namespace HexaEngine.Mathematics
         /// Sets the global (world space) scale, overwriting the current value. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new global scale.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetGlobalScaleOverwrite(Vector3 value)
         {
             if (globalScale == value)
@@ -1277,7 +1278,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local position and orientation, overwriting the current values. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new local position and orientation.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetPositionRotationOverwrite((Vector3 position, Quaternion rotation) value)
         {
             if ((position, orientation) == value)
@@ -1296,7 +1297,7 @@ namespace HexaEngine.Mathematics
         /// Sets the local position, orientation, and scale, overwriting the current values. (Bypasses locked axis checks)
         /// </summary>
         /// <param name="value">The new local position, orientation, and scale.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetPositionRotationScaleOverwrite((Vector3 position, Quaternion rotation, Vector3 scale) value)
         {
             if ((position, orientation, scale) == value)
@@ -1312,4 +1313,5 @@ namespace HexaEngine.Mathematics
         }
     }
 }
+
 #endif

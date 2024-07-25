@@ -1,6 +1,6 @@
 ﻿#if !MINIMAL
 
-namespace HexaEngine.Mathematics
+namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Numerics;

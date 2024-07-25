@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
     using System.Runtime.CompilerServices;
@@ -157,8 +157,14 @@
         /// <returns>An array of points representing the eight corners of the bounding frustum.</returns>
         public void GetCorners(Vector3[] corners)
         {
+#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(corners);
-
+#else
+            if (corners is null)
+            {
+                throw new ArgumentNullException(nameof(corners));
+            }
+#endif
             if (corners.Length < CornerCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(corners), $"GetCorners need at least {CornerCount} elements to copy corners.");

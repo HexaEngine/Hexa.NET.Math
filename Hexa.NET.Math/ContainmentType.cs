@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     /// <summary>
     /// Defines how the bounding volumes intersects or contain one another.

@@ -1,6 +1,7 @@
-﻿namespace HexaEngine.Mathematics.Sky.HosekWilkie
+﻿namespace Hexa.NET.Mathematics.Sky.HosekWilkie
 {
-    using HexaEngine.Mathematics.Sky;
+    using Hexa.NET.Mathematics;
+    using Hexa.NET.Mathematics.Sky;
     using System;
     using System.Numerics;
     using System.Runtime.InteropServices;
@@ -3908,7 +3909,7 @@
         float* coeffs/*[9]*/
     )
         {
-            int tbi = (int)(MathF.Floor(turbidity));
+            int tbi = (int)MathF.Floor(turbidity);
 
             if (tbi < 1)
             {
@@ -3921,7 +3922,7 @@
 
             float tbf = turbidity - tbi;
 
-            float s = MathF.Pow(solarElevation / MathUtil.PIDIV2, (1.0f / 3.0f));
+            float s = MathF.Pow(solarElevation / MathUtil.PIDIV2, 1.0f / 3.0f);
 
             float* quinticWeights = stackalloc float[6];
             FindQuinticWeights(s, quinticWeights);
@@ -4056,7 +4057,7 @@
 
         private static float ZenithLuminance(float thetaS, float T)
         {
-            float chi = (4.0f / 9.0f - T / 120.0f) * (float.Pi - 2.0f * thetaS);
+            float chi = (4.0f / 9.0f - T / 120.0f) * (MathF.PI - 2.0f * thetaS);
             float Lz = (4.0453f * T - 4.9710f) * MathF.Tan(chi) - 0.2155f * T + 2.4192f;
             Lz *= 1000.0f;   // conversion from kcd/m^2 to cd/m^2
             return Lz;

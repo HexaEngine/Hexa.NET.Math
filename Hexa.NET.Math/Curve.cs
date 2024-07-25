@@ -5,7 +5,7 @@
  * Fair use of code, this code section is trivial to the rest.
  */
 
-namespace HexaEngine.Mathematics
+namespace Hexa.NET.Mathematics
 {
     using System.Runtime.Serialization;
     using System.Text.Json.Serialization;

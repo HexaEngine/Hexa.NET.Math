@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Numerics;
@@ -65,10 +65,10 @@
         /// <returns>The 32-bit unsigned integer representation of the color.</returns>
         public Color32(uint color)
         {
-            R = (byte)((color >> 24) & 0xff);
-            G = (byte)((color >> 16) & 0xff);
-            B = (byte)((color >> 8) & 0xff);
-            A = (byte)((color) & 0xff);
+            R = (byte)(color >> 24 & 0xff);
+            G = (byte)(color >> 16 & 0xff);
+            B = (byte)(color >> 8 & 0xff);
+            A = (byte)(color & 0xff);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@
         /// <returns>The 32-bit unsigned integer representation of the color.</returns>
         public readonly uint ToUInt()
         {
-            return ((uint)R << 24) | ((uint)G << 16) | ((uint)B << 8) | A;
+            return (uint)R << 24 | (uint)G << 16 | (uint)B << 8 | A;
         }
 
         /// <summary>

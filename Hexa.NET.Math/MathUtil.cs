@@ -1,10 +1,15 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Numerics;
     using System.Runtime.CompilerServices;
+
+#if NET8_0_OR_GREATER
+
     using System.Runtime.Intrinsics;
     using System.Runtime.Intrinsics.X86;
+
+#endif
 
     /// <summary>
     /// A utility class containing various mathematical functions and constants.
@@ -14,27 +19,27 @@
         /// <summary>
         /// The factor to convert degrees to radians.
         /// </summary>
-        public const double DegToRadFactor = float.Pi / 180;
+        public const double DegToRadFactor = MathF.PI / 180;
 
         /// <summary>
         /// The factor to convert radians to degrees.
         /// </summary>
-        public const double RadToDefFactor = 180 / float.Pi;
+        public const double RadToDefFactor = 180 / MathF.PI;
 
         /// <summary>
         /// The mathematical constant PI.
         /// </summary>
-        public const float PI = float.Pi;
+        public const float PI = MathF.PI;
 
         /// <summary>
         /// Two times the mathematical constant PI.
         /// </summary>
-        public const float PI2 = 2 * float.Pi;
+        public const float PI2 = 2 * MathF.PI;
 
         /// <summary>
         /// Half of the mathematical constant PI.
         /// </summary>
-        public const float PIDIV2 = float.Pi / 2;
+        public const float PIDIV2 = MathF.PI / 2;
 
         /// <summary>
         /// The square root of 2.
@@ -54,22 +59,22 @@
         /// <summary>
         /// A Vector4 containing a small epsilon value.
         /// </summary>
-        public static readonly Vector4 SplatEpsilon = new(BitConverter.UInt32BitsToSingle(0x34000000));
+        public static readonly Vector4 SplatEpsilon = new(UInt32BitsToSingle(0x34000000));
 
         /// <summary>
         /// Represents a constant Vector4 with all components set to positive infinity.
         /// </summary>
-        public static readonly Vector4 Infinity = new(BitConverter.UInt32BitsToSingle(0x7F800000));
+        public static readonly Vector4 Infinity = new(UInt32BitsToSingle(0x7F800000));
+
+        /// <summary>
+        /// Represents a quiet NaN (Not a Number) in single-precision floating-point format.
+        /// </summary>
+        public static readonly Vector4 QNaN = new(UInt32BitsToSingle(0x7FC00000));
 
         /// <summary>
         /// Represents a constant Vector4 with all components set to positive infinity.
         /// </summary>
         public static readonly Vector4D InfinityDouble = new(double.PositiveInfinity);
-
-        /// <summary>
-        /// Represents a quiet NaN (Not a Number) in single-precision floating-point format.
-        /// </summary>
-        public static readonly Vector4 QNaN = new(BitConverter.UInt32BitsToSingle(0x7FC00000));
 
         /// <summary>
         /// Represents a quiet NaN (Not a Number) in double-precision floating-point format.
@@ -476,6 +481,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Dot(Vector2 a, Vector2 b)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vecA = a.AsVector128();
@@ -483,6 +489,7 @@
                 Vector128<float> result = Sse41.DotProduct(vecA, vecB, 0x3f);
                 return result.ToScalar();
             }
+#endif
 
             return Vector2.Dot(a, b);
         }
@@ -497,6 +504,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Dot(Vector3 a, Vector3 b)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vecA = a.AsVector128();
@@ -504,7 +512,7 @@
                 Vector128<float> result = Sse41.DotProduct(vecA, vecB, 0x7f);
                 return result.ToScalar();
             }
-
+#endif
             return Vector3.Dot(a, b);
         }
 
@@ -518,6 +526,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Dot(Vector4 a, Vector4 b)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vecA = a.AsVector128();
@@ -525,7 +534,7 @@
                 Vector128<float> result = Sse41.DotProduct(vecA, vecB, 0xff);
                 return result.ToScalar();
             }
-
+#endif
             return Vector4.Dot(a, b);
         }
 
@@ -539,6 +548,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 NormalizeEst(Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -547,7 +557,7 @@
                 Vector128<float> result = Sse.Multiply(vResult, vec);
                 return result.AsVector2();
             }
-
+#endif
             float lengthSq = vector.LengthSquared();
             if (lengthSq != 0)
             {
@@ -567,6 +577,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 NormalizeEst(Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -575,7 +586,7 @@
                 Vector128<float> result = Sse.Multiply(vResult, vec);
                 return result.AsVector3();
             }
-
+#endif
             float lengthSq = vector.LengthSquared();
             if (lengthSq != 0)
             {
@@ -595,6 +606,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 NormalizeEst(Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -603,7 +615,7 @@
                 Vector128<float> result = Sse.Multiply(vResult, vec);
                 return result.AsVector4();
             }
-
+#endif
             float lengthSq = vector.LengthSquared();
             if (lengthSq != 0)
             {
@@ -622,6 +634,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Normalize(Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -645,7 +658,7 @@
                 vResult = Sse.Or(vTemp1, vTemp2);
                 return vResult.AsVector2();
             }
-
+#endif
             {
                 Vector4 vec = new(vector.X, vector.Y, 0, 0);
                 float lengthSq = Vector4.Dot(vec, vec);
@@ -672,6 +685,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Normalize(Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -695,7 +709,7 @@
                 vResult = Sse.Or(vTemp1, vTemp2);
                 return vResult.AsVector3();
             }
-
+#endif
             {
                 Vector4 vec = new(vector.X, vector.Y, vector.Z, 0);
                 float lengthSq = Vector4.Dot(vec, vec);
@@ -722,6 +736,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Normalize(Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -745,7 +760,7 @@
                 vResult = Sse.Or(vTemp1, vTemp2);
                 return vResult.AsVector4();
             }
-
+#endif
             {
                 Vector4 vec = new(vector.X, vector.Y, vector.Z, vector.W);
                 float lengthSq = Vector4.Dot(vec, vec);
@@ -772,6 +787,7 @@
         /// <returns>The dot product of the two 2D vectors.</returns>
         public static double Dot(Vector2D left, Vector2D right)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> xy = Avx.Multiply(left.AsVector256(), right.AsVector256());
@@ -781,7 +797,7 @@
                 Vector256<double> dotProduct = Avx.Add(swapped, blended);
                 return dotProduct.ToScalar();
             }
-
+#endif
             return Vector2D.Dot(left, right);
         }
 
@@ -794,6 +810,7 @@
         /// <returns>The dot product of the two 3D vectors.</returns>
         public static double Dot(Vector3D left, Vector3D right)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> xy = Avx.Multiply(left.AsVector256(), right.AsVector256());
@@ -803,7 +820,7 @@
                 Vector256<double> dotProduct = Avx.Add(swapped, blended);
                 return dotProduct.ToScalar();
             }
-
+#endif
             return Vector3D.Dot(left, right);
         }
 
@@ -816,6 +833,7 @@
         /// <returns>The dot product of the two 4D vectors.</returns>
         public static double Dot(Vector4D left, Vector4D right)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> xy = Avx.Multiply(left.AsVector256(), right.AsVector256());
@@ -825,7 +843,7 @@
                 Vector256<double> dotProduct = Avx.Add(swapped, blended);
                 return dotProduct.ToScalar();
             }
-
+#endif
             return Vector4D.Dot(left, right);
         }
 
@@ -889,6 +907,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2D Normalize(Vector2D vector)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> vec = vector.AsVector256();
@@ -918,7 +937,7 @@
                 vResult = Avx.Or(vTemp1, vTemp2);
                 return vResult.AsVector2D();
             }
-
+#endif
             {
                 Vector4D vec = new(vector.X, vector.Y, 0, 0);
                 double lengthSq = Vector4D.Dot(vec, vec);
@@ -945,6 +964,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D Normalize(Vector3D vector)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> vec = vector.AsVector256();
@@ -974,7 +994,7 @@
                 vResult = Avx.Or(vTemp1, vTemp2);
                 return vResult.AsVector3D();
             }
-
+#endif
             {
                 Vector4D vec = new(vector.X, vector.Y, vector.Z, 0);
                 double lengthSq = Vector4D.Dot(vec, vec);
@@ -1001,6 +1021,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Normalize(Vector4D vector)
         {
+#if NET8_0_OR_GREATER
             if (Avx.IsSupported)
             {
                 Vector256<double> vec = vector.AsVector256();
@@ -1030,7 +1051,7 @@
                 vResult = Avx.Or(vTemp1, vTemp2);
                 return vResult.AsVector4D();
             }
-
+#endif
             {
                 Vector4D vec = new(vector.X, vector.Y, vector.Z, vector.W);
                 double lengthSq = Vector4D.Dot(vec, vec);
@@ -1057,13 +1078,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthSquared(Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 var vResult = Sse41.DotProduct(vec, vec, 0x3f);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1076,13 +1098,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthSquared(Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 var vResult = Sse41.DotProduct(vec, vec, 0x7f);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1095,13 +1118,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthSquared(Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 var vResult = Sse41.DotProduct(vec, vec, 0xff);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1114,6 +1138,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Length(Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1121,7 +1146,7 @@
                 vResult = Sse.Sqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.Length();
         }
 
@@ -1134,6 +1159,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Length(Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1141,7 +1167,7 @@
                 vResult = Sse.Sqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1154,6 +1180,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Length(Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1161,7 +1188,7 @@
                 vResult = Sse.Sqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1175,6 +1202,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthEst(Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1182,7 +1210,7 @@
                 vResult = Sse.ReciprocalSqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.Length();
         }
 
@@ -1196,6 +1224,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthEst(Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1203,7 +1232,7 @@
                 vResult = Sse.ReciprocalSqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1217,6 +1246,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float LengthEst(Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
@@ -1224,7 +1254,7 @@
                 vResult = Sse.ReciprocalSqrt(vResult);
                 return vResult.ToScalar();
             }
-
+#endif
             return vector.LengthSquared();
         }
 
@@ -1376,8 +1406,8 @@
             }
 
             long bits = BitConverter.DoubleToInt64Bits(value);
-            exponent = (int)((bits >> 52) & 0x7FF) - 1022;
-            long mantissa = (bits & 0xFFFFFFFFFFFFF) | 0x10000000000000; // Set the hidden bit
+            exponent = (int)(bits >> 52 & 0x7FF) - 1022;
+            long mantissa = bits & 0xFFFFFFFFFFFFF | 0x10000000000000; // Set the hidden bit
 
             double resultMantissa = BitConverter.Int64BitsToDouble(mantissa);
             return resultMantissa;
@@ -1400,8 +1430,8 @@
             }
 
             int bits = BitConverter.SingleToInt32Bits(value);
-            exponent = ((bits >> 23) & 0xFF) - 126;
-            int mantissa = (bits & 0x7FFFFF) | 0x800000; // Set the hidden bit
+            exponent = (bits >> 23 & 0xFF) - 126;
+            int mantissa = bits & 0x7FFFFF | 0x800000; // Set the hidden bit
 
             float resultMantissa = BitConverter.Int32BitsToSingle(mantissa);
             return resultMantissa;
@@ -1425,12 +1455,12 @@
 
             // Extract sign and exponent from the IEEE 754 representation
             long bits = BitConverter.DoubleToInt64Bits(x);
-            int sign = (int)((bits >> 63) & 1);
-            int oldExp = (int)((bits >> 52) & 0x7FF) - 1022;
+            int sign = (int)(bits >> 63 & 1);
+            int oldExp = (int)(bits >> 52 & 0x7FF) - 1022;
 
             // Calculate new exponent and set it in the IEEE 754 representation
             int newExp = oldExp + exp;
-            long resultBits = ((long)sign << 63) | ((long)(newExp + 1022) << 52) | (bits & 0xFFFFFFFFFFFFF);
+            long resultBits = (long)sign << 63 | (long)(newExp + 1022) << 52 | bits & 0xFFFFFFFFFFFFF;
 
             // Reconstruct the double with the modified exponent
             return BitConverter.Int64BitsToDouble(resultBits);
@@ -1454,12 +1484,12 @@
 
             // Extract sign and exponent from the IEEE 754 representation
             int bits = BitConverter.SingleToInt32Bits(x);
-            int sign = (bits >> 31) & 1;
-            int oldExp = ((bits >> 23) & 0xFF) - 127;
+            int sign = bits >> 31 & 1;
+            int oldExp = (bits >> 23 & 0xFF) - 127;
 
             // Calculate new exponent and set it in the IEEE 754 representation
             int newExp = oldExp + exp;
-            int resultBits = ((sign & 1) << 31) | ((newExp + 127) << 23) | (bits & 0x7FFFFF);
+            int resultBits = (sign & 1) << 31 | newExp + 127 << 23 | bits & 0x7FFFFF;
 
             // Reconstruct the float with the modified exponent
             return BitConverter.Int32BitsToSingle(resultBits);
@@ -1902,6 +1932,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Clamp(Vector2 v, Vector2 min, Vector2 max)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -1913,7 +1944,7 @@
 
                 return vec.AsVector2();
             }
-
+#endif
             return Vector2.Clamp(v, min, max);
         }
 
@@ -1927,6 +1958,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Clamp(Vector3 v, Vector3 min, Vector3 max)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -1938,7 +1970,7 @@
 
                 return vec.AsVector3();
             }
-
+#endif
             return Vector3.Clamp(v, min, max);
         }
 
@@ -1952,6 +1984,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Clamp(Vector4 v, Vector4 min, Vector4 max)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -1963,7 +1996,7 @@
 
                 return vec.AsVector4();
             }
-
+#endif
             return Vector4.Clamp(v, min, max);
         }
 
@@ -1975,6 +2008,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Clamp01(Vector2 v)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -1984,7 +2018,7 @@
 
                 return vec.AsVector2();
             }
-
+#endif
             return Vector2.Clamp(v, Vector2.Zero, Vector2.One);
         }
 
@@ -1996,6 +2030,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Clamp01(Vector3 v)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -2005,7 +2040,7 @@
 
                 return vec.AsVector3();
             }
-
+#endif
             return Vector3.Clamp(v, Vector3.Zero, Vector3.One);
         }
 
@@ -2017,6 +2052,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Clamp01(Vector4 v)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vec = v.AsVector128();
@@ -2026,7 +2062,7 @@
 
                 return vec.AsVector4();
             }
-
+#endif
             return Vector4.Clamp(v, Vector4.Zero, Vector4.One);
         }
 
@@ -2038,13 +2074,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Floor(this Vector2 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 vec = Sse41.Floor(vec);
                 return vec.AsVector2();
             }
-
+#endif
             return new(MathF.Floor(vector.X), MathF.Floor(vector.Y));
         }
 
@@ -2056,13 +2093,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Floor(this Vector3 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 vec = Sse41.Floor(vec);
                 return vec.AsVector3();
             }
-
+#endif
             return new(MathF.Floor(vector.X), MathF.Floor(vector.Y), MathF.Floor(vector.Z));
         }
 
@@ -2074,13 +2112,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Floor(this Vector4 vector)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = vector.AsVector128();
                 vec = Sse41.Floor(vec);
                 return vec.AsVector4();
             }
-
+#endif
             return new(MathF.Floor(vector.X), MathF.Floor(vector.Y), MathF.Floor(vector.Z), MathF.Floor(vector.W));
         }
 
@@ -2092,13 +2131,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Ceiling(this Vector2 value)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = value.AsVector128();
                 vec = Sse41.Ceiling(vec);
                 return vec.AsVector2();
             }
-
+#endif
             return new Vector2(MathF.Ceiling(value.X), MathF.Ceiling(value.Y));
         }
 
@@ -2110,13 +2150,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Ceiling(this Vector3 value)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = value.AsVector128();
                 vec = Sse41.Ceiling(vec);
                 return vec.AsVector3();
             }
-
+#endif
             return new Vector3(MathF.Ceiling(value.X), MathF.Ceiling(value.Y), MathF.Ceiling(value.Z));
         }
 
@@ -2128,13 +2169,14 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Ceiling(this Vector4 value)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = value.AsVector128();
                 vec = Sse41.Ceiling(vec);
                 return vec.AsVector4();
             }
-
+#endif
             return new Vector4(MathF.Ceiling(value.X), MathF.Ceiling(value.Y), MathF.Ceiling(value.Z), MathF.Ceiling(value.W));
         }
 
@@ -2262,7 +2304,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Exp2(float x)
         {
-            return BitConverter.Int32BitsToSingle(((int)(x * 0x00800000 + 126.0f)) << 23);
+            return BitConverter.Int32BitsToSingle((int)(x * 0x00800000 + 126.0f) << 23);
         }
 
         /// <summary>
@@ -2344,6 +2386,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool NearEqual(Vector2 v1, Vector2 v2, Vector2 epsilon)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vDelta = Sse.Subtract(v1.AsVector128(), v2.AsVector128());
@@ -2354,10 +2397,10 @@
                 int mask = Sse.MoveMask(vTemp);
                 return (mask & 3) == 0x3;
             }
-
+#endif
             float dx = MathF.Abs(v1.X - v2.X);
             float dy = MathF.Abs(v1.Y - v2.Y);
-            return (dx <= epsilon.X) && (dy <= epsilon.Y);
+            return dx <= epsilon.X && dy <= epsilon.Y;
         }
 
         /// <summary>
@@ -2370,6 +2413,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool NearEqual(Vector3 v1, Vector3 v2, Vector3 epsilon)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vDelta = Sse.Subtract(v1.AsVector128(), v2.AsVector128());
@@ -2380,11 +2424,11 @@
                 int mask = Sse.MoveMask(vTemp);
                 return (mask & 7) == 0x7;
             }
-
+#endif
             float dx = MathF.Abs(v1.X - v2.X);
             float dy = MathF.Abs(v1.Y - v2.Y);
             float dz = MathF.Abs(v1.Z - v2.Z);
-            return (dx <= epsilon.X) && (dy <= epsilon.Y) && (dz <= epsilon.Z);
+            return dx <= epsilon.X && dy <= epsilon.Y && dz <= epsilon.Z;
         }
 
         /// <summary>
@@ -2397,6 +2441,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool NearEqual(Vector4 v1, Vector4 v2, Vector4 epsilon)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vDelta = Sse.Subtract(v1.AsVector128(), v2.AsVector128());
@@ -2407,12 +2452,12 @@
                 int mask = Sse.MoveMask(vTemp);
                 return (mask & 0xf) == 0xf;
             }
-
+#endif
             float dx = MathF.Abs(v1.X - v2.X);
             float dy = MathF.Abs(v1.Y - v2.Y);
             float dz = MathF.Abs(v1.Z - v2.Z);
             float dw = MathF.Abs(v1.W - v2.W);
-            return (dx <= epsilon.X) && (dy <= epsilon.Y) && (dz <= epsilon.Z) && (dw <= epsilon.W);
+            return dx <= epsilon.X && dy <= epsilon.Y && dz <= epsilon.Z && dw <= epsilon.W;
         }
 
         /// <summary>
@@ -2777,13 +2822,20 @@
         /// <param name="index">The row index.</param>
         /// <returns>The row.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4 GetRow(this Matrix4x4 matrix, int index)
+        public static unsafe Vector4 GetRow(this Matrix4x4 matrix, int index)
         {
+            if (index < 0 || index > 3)
+                throw new ArgumentOutOfRangeException(nameof(index), "Row index must be between 0 and 3.");
+
+            // Unsafe pointer to the first element of the matrix
+            float* m = (float*)&matrix;
+
             Vector4 row;
-            row.X = matrix[index, 0];
-            row.Y = matrix[index, 1];
-            row.Z = matrix[index, 2];
-            row.W = matrix[index, 3];
+            row.X = m[index + 0 * 4]; // First column
+            row.Y = m[index + 1 * 4]; // Second column
+            row.Z = m[index + 2 * 4]; // Third column
+            row.W = m[index + 3 * 4]; // Fourth column
+
             return row;
         }
 
@@ -2795,6 +2847,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe Vector4 NormalizePlane(Vector4 plane)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> vec = plane.AsVector128();
@@ -2803,7 +2856,7 @@
                 Vector128<float> result = Sse.Divide(vec, vecLen);
                 return result.AsVector4();
             }
-
+#endif
             float length = (float)Math.Sqrt(plane.X * plane.X + plane.Y * plane.Y + plane.Z * plane.Z);
             return new Vector4(plane.X / length, plane.Y / length, plane.Z / length, plane.W / length);
         }
@@ -2825,7 +2878,7 @@
             i = *(long*)&y;                                 // evil floating point bit level hacking
             i = 0x5f3759df - (i >> 1);                      // what the fuck?
             y = *(float*)&i;
-            y *= (threehalfs - (x2 * y * y));               // 1st iteration
+            y *= threehalfs - x2 * y * y;               // 1st iteration
             // y  = y * ( threehalfs - ( x2 * y * y ) );    // 2nd iteration, this can be removed
 
             return y;
@@ -2848,7 +2901,7 @@
             i = *(long*)&y;                                 // evil floating point bit level hacking
             i = 0x5fe6eb50c7b537a9 - (i >> 1);              // what the fuck?
             y = *(double*)&i;
-            y *= (threehalfs - (x2 * y * y));               // 1st iteration
+            y *= threehalfs - x2 * y * y;               // 1st iteration
             // y  = y * ( threehalfs - ( x2 * y * y ) );    // 2nd iteration, this can be removed
 
             return y;
@@ -2863,6 +2916,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Project(Vector2 vector, Vector2 onto)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> v = vector.AsVector128();
@@ -2881,7 +2935,7 @@
 
                 return vResult.AsVector2();
             }
-
+#endif
             {
                 float dot = Vector2.Dot(vector, onto);
                 float ontoLengthSquared = onto.LengthSquared();
@@ -2905,6 +2959,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Project(Vector3 vector, Vector3 onto)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> v = vector.AsVector128();
@@ -2923,7 +2978,7 @@
 
                 return vResult.AsVector3();
             }
-
+#endif
             {
                 float dot = Vector3.Dot(vector, onto);
                 float ontoLengthSquared = onto.LengthSquared();
@@ -2947,6 +3002,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Project(Vector4 vector, Vector4 onto)
         {
+#if NET8_0_OR_GREATER
             if (Sse41.IsSupported)
             {
                 Vector128<float> v = vector.AsVector128();
@@ -2965,7 +3021,7 @@
 
                 return vResult.AsVector4();
             }
-
+#endif
             {
                 float dot = Vector4.Dot(vector, onto);
                 float ontoLengthSquared = onto.LengthSquared();
@@ -2995,6 +3051,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Remap(Vector2 value, Vector2 low1, Vector2 high1, Vector2 low2, Vector2 high2)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecLow1 = low1.AsVector128();
@@ -3010,7 +3067,7 @@
 
                 return result.AsVector2();
             }
-
+#endif
             return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
         }
 
@@ -3020,6 +3077,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Remap(Vector3 value, Vector3 low1, Vector3 high1, Vector3 low2, Vector3 high2)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecLow1 = low1.AsVector128();
@@ -3035,7 +3093,7 @@
 
                 return result.AsVector3();
             }
-
+#endif
             return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
         }
 
@@ -3045,6 +3103,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Remap(Vector4 value, Vector4 low1, Vector4 high1, Vector4 low2, Vector4 high2)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecLow1 = low1.AsVector128();
@@ -3060,7 +3119,7 @@
 
                 return result.AsVector4();
             }
-
+#endif
             return low2 + (value - low1) * (high2 - low2) / (high1 - low1);
         }
 
@@ -3116,6 +3175,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 SmoothStep(Vector2 edge0, Vector2 edge1, float s)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecEdge0 = edge0.AsVector128();
@@ -3128,7 +3188,7 @@
 
                 return vecResult.AsVector2();
             }
-
+#endif
             s = Clamp01(s);
             s = s * s * (3f - 2f * s);
             return edge0 + (edge1 - edge0) * s;
@@ -3148,6 +3208,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 SmoothStep(Vector3 edge0, Vector3 edge1, float s)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecEdge0 = edge0.AsVector128();
@@ -3160,7 +3221,7 @@
 
                 return vecResult.AsVector3();
             }
-
+#endif
             s = Clamp01(s);
             s = s * s * (3f - 2f * s);
             return edge0 + (edge1 - edge0) * s;
@@ -3180,6 +3241,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 SmoothStep(Vector4 edge0, Vector4 edge1, float s)
         {
+#if NET8_0_OR_GREATER
             if (Sse.IsSupported)
             {
                 Vector128<float> vecEdge0 = edge0.AsVector128();
@@ -3192,10 +3254,15 @@
 
                 return vecResult.AsVector4();
             }
-
+#endif
             s = Clamp01(s);
             s = s * s * (3f - 2f * s);
             return edge0 + (edge1 - edge0) * s;
+        }
+
+        public static unsafe float UInt32BitsToSingle(uint value)
+        {
+            return *(float*)&value;
         }
     }
 }

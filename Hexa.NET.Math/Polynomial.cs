@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Runtime.InteropServices;
 
@@ -597,8 +597,8 @@
 
             for (int i = 0; i <= degree; i++)
             {
-                float coef1 = (i <= p1.Degree) ? p1[i] : 0;
-                float coef2 = (i <= p2.Degree) ? p2[i] : 0;
+                float coef1 = i <= p1.Degree ? p1[i] : 0;
+                float coef2 = i <= p2.Degree ? p2[i] : 0;
                 result[i] = coef1 + coef2;
             }
 
@@ -618,8 +618,8 @@
 
             for (int i = 0; i <= degree; i++)
             {
-                float coef1 = (i <= p1.Degree) ? p1[i] : 0;
-                float coef2 = (i <= p2.Degree) ? p2[i] : 0;
+                float coef1 = i <= p1.Degree ? p1[i] : 0;
+                float coef2 = i <= p2.Degree ? p2[i] : 0;
                 result[i] = coef1 - coef2;
             }
 

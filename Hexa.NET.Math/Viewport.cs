@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
     using System.Runtime.CompilerServices;
@@ -189,7 +189,7 @@
         public Vector3 Project(Vector3 source, Matrix4x4 worldViewProjection)
         {
             Vector3 vector = Vector3.Transform(source, worldViewProjection);
-            float a = (source.X * worldViewProjection.M14) + (source.Y * worldViewProjection.M24) + (source.Z * worldViewProjection.M34) + worldViewProjection.M44;
+            float a = source.X * worldViewProjection.M14 + source.Y * worldViewProjection.M24 + source.Z * worldViewProjection.M34 + worldViewProjection.M44;
 
             if (a != 1)
             {
@@ -198,9 +198,9 @@
                 vector.Z /= a;
             }
 
-            vector.X = ((vector.X + 1.0f) * 0.5f * Width) + X;
-            vector.Y = ((-vector.Y + 1.0f) * 0.5f * Height) + Y;
-            vector.Z = (vector.Z * (MaxDepth - MinDepth)) + MinDepth;
+            vector.X = (vector.X + 1.0f) * 0.5f * Width + X;
+            vector.Y = (-vector.Y + 1.0f) * 0.5f * Height + Y;
+            vector.Z = vector.Z * (MaxDepth - MinDepth) + MinDepth;
             return vector;
         }
 
@@ -228,11 +228,11 @@
         {
             Matrix4x4.Invert(worldViewProjection, out Matrix4x4 matrix);
 
-            source.X = (((source.X - X) / Width) * 2.0f) - 1.0f;
-            source.Y = -(((source.Y - Y) / Height * 2.0f) - 1.0f);
+            source.X = (source.X - X) / Width * 2.0f - 1.0f;
+            source.Y = -((source.Y - Y) / Height * 2.0f - 1.0f);
             source.Z = (source.Z - MinDepth) / (MaxDepth - MinDepth);
 
-            float a = (source.X * matrix.M14) + (source.Y * matrix.M24) + (source.Z * matrix.M34) + matrix.M44;
+            float a = source.X * matrix.M14 + source.Y * matrix.M24 + source.Z * matrix.M34 + matrix.M44;
             source = Vector3.Transform(source, matrix);
 
             if (a != 1)

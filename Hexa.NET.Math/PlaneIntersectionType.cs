@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     /// <summary>
     /// Defines the intersection between a <see cref="System.Numerics.Plane"/> and a bounding volume.

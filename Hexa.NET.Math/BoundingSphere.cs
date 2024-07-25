@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
     using System.Runtime.CompilerServices;
@@ -99,9 +99,9 @@
             Vector3 center = Vector3.Transform(sphere.Center, transform);
 
             float majorAxisLengthSquared = Math.Max(
-               (transform.M11 * transform.M11) + (transform.M12 * transform.M12) + (transform.M13 * transform.M13), Math.Max(
-               (transform.M21 * transform.M21) + (transform.M22 * transform.M22) + (transform.M23 * transform.M23),
-               (transform.M31 * transform.M31) + (transform.M32 * transform.M32) + (transform.M33 * transform.M33)));
+               transform.M11 * transform.M11 + transform.M12 * transform.M12 + transform.M13 * transform.M13, Math.Max(
+               transform.M21 * transform.M21 + transform.M22 * transform.M22 + transform.M23 * transform.M23,
+               transform.M31 * transform.M31 + transform.M32 * transform.M32 + transform.M33 * transform.M33));
 
             float radius = sphere.Radius * (float)Math.Sqrt(majorAxisLengthSquared);
             result = new BoundingSphere(center, radius);
@@ -169,7 +169,7 @@
             Vector3 m = Vector3.Subtract(ray.Position, Center);
 
             float b = Vector3.Dot(m, ray.Direction);
-            float c = Vector3.Dot(m, m) - (Radius * Radius);
+            float c = Vector3.Dot(m, m) - Radius * Radius;
 
             if (c > 0f && b > 0f)
             {

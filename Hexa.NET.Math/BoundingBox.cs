@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
     using System.Runtime.CompilerServices;
@@ -239,8 +239,14 @@
         /// <returns>An array of points representing the eight corners of the bounding box.</returns>
         public readonly void GetCorners(Vector3[] corners)
         {
+#if NET8_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(corners);
-
+#else
+            if (corners == null)
+            {
+                throw new ArgumentNullException(nameof(corners));
+            }
+#endif
             if (corners.Length < CornerCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(corners), $"GetCorners need at least {CornerCount} elements to copy corners.");
@@ -328,8 +334,8 @@
                 return ContainmentType.Disjoint;
             }
 
-            if (Min.X <= box.Min.X && (box.Max.X <= Max.X &&
-                Min.Y <= box.Min.Y && box.Max.Y <= Max.Y) &&
+            if (Min.X <= box.Min.X && box.Max.X <= Max.X &&
+                Min.Y <= box.Min.Y && box.Max.Y <= Max.Y &&
                 Min.Z <= box.Min.Z && box.Max.Z <= Max.Z)
             {
                 return ContainmentType.Contains;
@@ -353,9 +359,9 @@
                 return ContainmentType.Disjoint;
             }
 
-            if (((Min.X + sphere.Radius <= sphere.Center.X) && (sphere.Center.X <= Max.X - sphere.Radius) && (Max.X - Min.X > sphere.Radius)) &&
-               ((Min.Y + sphere.Radius <= sphere.Center.Y) && (sphere.Center.Y <= Max.Y - sphere.Radius) && (Max.Y - Min.Y > sphere.Radius)) &&
-               ((Min.Z + sphere.Radius <= sphere.Center.Z) && (sphere.Center.Z <= Max.Z - sphere.Radius) && (Max.Z - Min.Z > sphere.Radius)))
+            if (Min.X + sphere.Radius <= sphere.Center.X && sphere.Center.X <= Max.X - sphere.Radius && Max.X - Min.X > sphere.Radius &&
+               Min.Y + sphere.Radius <= sphere.Center.Y && sphere.Center.Y <= Max.Y - sphere.Radius && Max.Y - Min.Y > sphere.Radius &&
+               Min.Z + sphere.Radius <= sphere.Center.Z && sphere.Center.Z <= Max.Z - sphere.Radius && Max.Z - Min.Z > sphere.Radius)
             {
                 return ContainmentType.Contains;
             }
@@ -520,12 +526,12 @@
             Vector3 min;
             Vector3 max;
 
-            max.X = (plane.Normal.X >= 0.0f) ? Min.X : Max.X;
-            max.Y = (plane.Normal.Y >= 0.0f) ? Min.Y : Max.Y;
-            max.Z = (plane.Normal.Z >= 0.0f) ? Min.Z : Max.Z;
-            min.X = (plane.Normal.X >= 0.0f) ? Max.X : Min.X;
-            min.Y = (plane.Normal.Y >= 0.0f) ? Max.Y : Min.Y;
-            min.Z = (plane.Normal.Z >= 0.0f) ? Max.Z : Min.Z;
+            max.X = plane.Normal.X >= 0.0f ? Min.X : Max.X;
+            max.Y = plane.Normal.Y >= 0.0f ? Min.Y : Max.Y;
+            max.Z = plane.Normal.Z >= 0.0f ? Min.Z : Max.Z;
+            min.X = plane.Normal.X >= 0.0f ? Max.X : Min.X;
+            min.Y = plane.Normal.Y >= 0.0f ? Max.Y : Min.Y;
+            min.Z = plane.Normal.Z >= 0.0f ? Max.Z : Min.Z;
 
             float distance = Vector3.Dot(plane.Normal, max);
 

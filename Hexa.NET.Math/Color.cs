@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Numerics;
@@ -77,9 +77,9 @@
         /// <param name="color">The unsigned integer representation of the color.</param>
         public Color(uint color)
         {
-            R = (float)((color >> 24) & 0xff) / byte.MaxValue;
-            G = (float)((color >> 16) & 0xff) / byte.MaxValue;
-            B = (float)((color >> 8) & 0xff) / byte.MaxValue;
+            R = (float)(color >> 24 & 0xff) / byte.MaxValue;
+            G = (float)(color >> 16 & 0xff) / byte.MaxValue;
+            B = (float)(color >> 8 & 0xff) / byte.MaxValue;
             A = (float)(color & 0xff) / byte.MaxValue;
         }
 
@@ -110,9 +110,9 @@
 
         public static Color FromABGR(uint color)
         {
-            var a = (float)((color >> 24) & 0xff) / byte.MaxValue;
-            var b = (float)((color >> 16) & 0xff) / byte.MaxValue;
-            var g = (float)((color >> 8) & 0xff) / byte.MaxValue;
+            var a = (float)(color >> 24 & 0xff) / byte.MaxValue;
+            var b = (float)(color >> 16 & 0xff) / byte.MaxValue;
+            var g = (float)(color >> 8 & 0xff) / byte.MaxValue;
             var r = (float)(color & 0xff) / byte.MaxValue;
             return new Color(r, g, b, a);
         }
@@ -128,7 +128,7 @@
             byte g = (byte)(col.G * byte.MaxValue);
             byte b = (byte)(col.B * byte.MaxValue);
             byte a = (byte)(col.A * byte.MaxValue);
-            return ((uint)r << 24) | ((uint)g << 16) | ((uint)b << 8) | a;
+            return (uint)r << 24 | (uint)g << 16 | (uint)b << 8 | a;
         }
 
         /// <summary>
@@ -142,7 +142,7 @@
             byte g = (byte)(col.G * byte.MaxValue);
             byte b = (byte)(col.B * byte.MaxValue);
             byte a = (byte)(col.A * byte.MaxValue);
-            return ((uint)a << 24) | ((uint)b << 16) | ((uint)g << 8) | r;
+            return (uint)a << 24 | (uint)b << 16 | (uint)g << 8 | r;
         }
 
         /// <summary>
@@ -170,7 +170,7 @@
             {
                 if (max == R)
                 {
-                    hue = (G - B) / delta + ((G < B) ? 6 : 0);
+                    hue = (G - B) / delta + (G < B ? 6 : 0);
                 }
                 else if (max == G)
                 {
@@ -184,7 +184,7 @@
                 hue /= 6;
             }
 
-            float saturation = (max != 0) ? delta / max : 0;
+            float saturation = max != 0 ? delta / max : 0;
             float value = max;
 
             return new ColorHSVA(hue, saturation, value, A);

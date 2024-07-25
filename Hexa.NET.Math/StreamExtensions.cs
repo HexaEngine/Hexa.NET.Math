@@ -1,11 +1,10 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Buffers;
     using System.Buffers.Binary;
     using System.IO;
     using System.Numerics;
-    using System.Runtime.InteropServices;
     using System.Text;
 
     internal static class StreamExtensions
@@ -262,15 +261,15 @@
             Span<byte> dst = stackalloc byte[12];
             if (endianness == Endianness.LittleEndian)
             {
-                BinaryPrimitives.WriteSingleLittleEndian(dst, vector.X);
-                BinaryPrimitives.WriteSingleLittleEndian(dst[4..], vector.Y);
-                BinaryPrimitives.WriteSingleLittleEndian(dst[8..], vector.Z);
+                WriteSingleLittleEndian(dst, vector.X);
+                WriteSingleLittleEndian(dst[4..], vector.Y);
+                WriteSingleLittleEndian(dst[8..], vector.Z);
             }
             else
             {
-                BinaryPrimitives.WriteSingleBigEndian(dst, vector.X);
-                BinaryPrimitives.WriteSingleBigEndian(dst[4..], vector.Y);
-                BinaryPrimitives.WriteSingleBigEndian(dst[8..], vector.Z);
+                WriteSingleBigEndian(dst, vector.X);
+                WriteSingleBigEndian(dst[4..], vector.Y);
+                WriteSingleBigEndian(dst[8..], vector.Z);
             }
 
             stream.Write(dst);
@@ -283,15 +282,15 @@
             Vector3 vector;
             if (endianness == Endianness.LittleEndian)
             {
-                vector.X = BinaryPrimitives.ReadSingleLittleEndian(src);
-                vector.Y = BinaryPrimitives.ReadSingleLittleEndian(src[4..]);
-                vector.Z = BinaryPrimitives.ReadSingleLittleEndian(src[8..]);
+                vector.X = ReadSingleLittleEndian(src);
+                vector.Y = ReadSingleLittleEndian(src[4..]);
+                vector.Z = ReadSingleLittleEndian(src[8..]);
             }
             else
             {
-                vector.X = BinaryPrimitives.ReadSingleBigEndian(src);
-                vector.Y = BinaryPrimitives.ReadSingleBigEndian(src[4..]);
-                vector.Z = BinaryPrimitives.ReadSingleBigEndian(src[8..]);
+                vector.X = ReadSingleBigEndian(src);
+                vector.Y = ReadSingleBigEndian(src[4..]);
+                vector.Z = ReadSingleBigEndian(src[8..]);
             }
 
             return vector;
@@ -302,11 +301,11 @@
             Span<byte> dst = stackalloc byte[4];
             if (endianness == Endianness.LittleEndian)
             {
-                BinaryPrimitives.WriteSingleLittleEndian(dst, value);
+                WriteSingleLittleEndian(dst, value);
             }
             else
             {
-                BinaryPrimitives.WriteSingleBigEndian(dst, value);
+                WriteSingleBigEndian(dst, value);
             }
 
             stream.Write(dst);
@@ -318,11 +317,167 @@
             stream.Read(src);
             if (endianness == Endianness.LittleEndian)
             {
-                return BinaryPrimitives.ReadSingleLittleEndian(src);
+                return ReadSingleLittleEndian(src);
             }
             else
             {
-                return BinaryPrimitives.ReadSingleBigEndian(src);
+                return ReadSingleBigEndian(src);
+            }
+        }
+
+        public static unsafe float ReadSingleLittleEndian(ReadOnlySpan<byte> bytes)
+        {
+            uint bits = 0;
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bits |= (uint)bytes[i] << i * 8;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bits |= (uint)bytes[3 - i] << i * 8;
+                }
+            }
+            return *(float*)&bits;
+        }
+
+        public static unsafe float ReadSingleBigEndian(ReadOnlySpan<byte> bytes)
+        {
+            uint bits = 0;
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bits |= (uint)bytes[i] << i * 8;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bits |= (uint)bytes[3 - i] << i * 8;
+                }
+            }
+            return *(float*)&bits;
+        }
+
+        public static unsafe double ReadDoubleLittleEndian(ReadOnlySpan<byte> bytes)
+        {
+            ulong bits = 0;
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bits |= (uint)bytes[i] << i * 8;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bits |= (uint)bytes[7 - i] << i * 8;
+                }
+            }
+            return *(double*)&bits;
+        }
+
+        public static unsafe double ReadDoubleBigEndian(ReadOnlySpan<byte> bytes)
+        {
+            ulong bits = 0;
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bits |= (uint)bytes[i] << i * 8;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bits |= (uint)bytes[7 - i] << i * 8;
+                }
+            }
+            return *(double*)&bits;
+        }
+
+        public static unsafe void WriteSingleLittleEndian(Span<byte> bytes, float value)
+        {
+            uint bits = *(uint*)&value;
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bytes[i] = (byte)(bits >> i * 8);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bytes[i] = (byte)(bits >> (3 - i) * 8);
+                }
+            }
+        }
+
+        public static unsafe void WriteSingleBigEndian(Span<byte> bytes, float value)
+        {
+            uint bits = *(uint*)&value;
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bytes[i] = (byte)(bits >> i * 8);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    bytes[i] = (byte)(bits >> (3 - i) * 8);
+                }
+            }
+        }
+
+        public static unsafe void WriteDoubleLittleEndian(Span<byte> bytes, double value)
+        {
+            ulong bits = *(ulong*)&value;
+            if (BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bytes[i] = (byte)(bits >> i * 8);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bytes[i] = (byte)(bits >> (7 - i) * 8);
+                }
+            }
+        }
+
+        public static unsafe void WriteDoubleBigEndian(Span<byte> bytes, double value)
+        {
+            ulong bits = *(ulong*)&value;
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bytes[i] = (byte)(bits >> i * 8);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    bytes[i] = (byte)(bits >> (7 - i) * 8);
+                }
             }
         }
     }

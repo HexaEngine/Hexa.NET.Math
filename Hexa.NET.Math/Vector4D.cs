@@ -1,4 +1,4 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
@@ -191,10 +191,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Vector4D left, Vector4D right)
         {
-            return (left.X == right.X)
-                && (left.Y == right.Y)
-                && (left.Z == right.Z)
-                && (left.W == right.W);
+            return left.X == right.X
+                && left.Y == right.Y
+                && left.Z == right.Z
+                && left.W == right.W;
         }
 
         /// <summary>Returns a value that indicates whether two specified vectors are not equal.</summary>
@@ -373,10 +373,10 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Dot(Vector4D vector1, Vector4D vector2)
         {
-            return (vector1.X * vector2.X)
-                 + (vector1.Y * vector2.Y)
-                 + (vector1.Z * vector2.Z)
-                 + (vector1.W * vector2.W);
+            return vector1.X * vector2.X
+                 + vector1.Y * vector2.Y
+                 + vector1.Z * vector2.Z
+                 + vector1.W * vector2.W;
         }
 
         /// <summary>Performs a linear interpolation between two vectors based on the given weighting.</summary>
@@ -387,7 +387,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Lerp(Vector4D value1, Vector4D value2, double amount)
         {
-            return (value1 * (1.0f - amount)) + (value2 * amount);
+            return value1 * (1.0f - amount) + value2 * amount;
         }
 
         /// <summary>Returns a vector whose elements are the maximum of each of the pairs of elements in two specified vectors.</summary>
@@ -398,10 +398,10 @@
         public static Vector4D Max(Vector4D value1, Vector4D value2)
         {
             return new Vector4D(
-                (value1.X > value2.X) ? value1.X : value2.X,
-                (value1.Y > value2.Y) ? value1.Y : value2.Y,
-                (value1.Z > value2.Z) ? value1.Z : value2.Z,
-                (value1.W > value2.W) ? value1.W : value2.W
+                value1.X > value2.X ? value1.X : value2.X,
+                value1.Y > value2.Y ? value1.Y : value2.Y,
+                value1.Z > value2.Z ? value1.Z : value2.Z,
+                value1.W > value2.W ? value1.W : value2.W
             );
         }
 
@@ -413,10 +413,10 @@
         public static Vector4D Min(Vector4D value1, Vector4D value2)
         {
             return new Vector4D(
-                (value1.X < value2.X) ? value1.X : value2.X,
-                (value1.Y < value2.Y) ? value1.Y : value2.Y,
-                (value1.Z < value2.Z) ? value1.Z : value2.Z,
-                (value1.W < value2.W) ? value1.W : value2.W
+                value1.X < value2.X ? value1.X : value2.X,
+                value1.Y < value2.Y ? value1.Y : value2.Y,
+                value1.Z < value2.Z ? value1.Z : value2.Z,
+                value1.W < value2.W ? value1.W : value2.W
             );
         }
 
@@ -532,10 +532,10 @@
         {
             return Dot(this, this);
         }
-
+#if NET8_0_OR_GREATER
         /// <summary>Returns the string representation of the current instance using default formatting.</summary>
         /// <returns>The string representation of the current instance.</returns>
-        /// <remarks>This method returns a string in which each element of the vector is formatted using the "G" (general) format string and the formatting conventions of the current thread culture. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="System.Globalization.NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
+        /// <remarks>This method returns a string in which each element of the vector is formatted using the "G" (general) format string and the formatting conventions of the current thread culture. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
         public override readonly string ToString()
         {
             return ToString("G", CultureInfo.CurrentCulture);
@@ -544,7 +544,7 @@
         /// <summary>Returns the string representation of the current instance using the specified format string to format individual elements.</summary>
         /// <param name="format">A standard or custom numeric format string that defines the format of individual elements.</param>
         /// <returns>The string representation of the current instance.</returns>
-        /// <remarks>This method returns a string in which each element of the vector is formatted using <paramref name="format" /> and the current culture's formatting conventions. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="System.Globalization.NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
+        /// <remarks>This method returns a string in which each element of the vector is formatted using <paramref name="format" /> and the current culture's formatting conventions. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
         /// <related type="Article" href="/dotnet/standard/base-types/standard-numeric-format-strings">Standard Numeric Format Strings</related>
         /// <related type="Article" href="/dotnet/standard/base-types/custom-numeric-format-strings">Custom Numeric Format Strings</related>
         public readonly string ToString([StringSyntax(StringSyntaxAttribute.NumericFormat)] string? format)
@@ -556,7 +556,7 @@
         /// <param name="format">A standard or custom numeric format string that defines the format of individual elements.</param>
         /// <param name="formatProvider">A format provider that supplies culture-specific formatting information.</param>
         /// <returns>The string representation of the current instance.</returns>
-        /// <remarks>This method returns a string in which each element of the vector is formatted using <paramref name="format" /> and <paramref name="formatProvider" />. The "&lt;" and "&gt;" characters are used to begin and end the string, and the format provider's <see cref="System.Globalization.NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
+        /// <remarks>This method returns a string in which each element of the vector is formatted using <paramref name="format" /> and <paramref name="formatProvider" />. The "&lt;" and "&gt;" characters are used to begin and end the string, and the format provider's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
         /// <related type="Article" href="/dotnet/standard/base-types/custom-numeric-format-strings">Custom Numeric Format Strings</related>
         /// <related type="Article" href="/dotnet/standard/base-types/standard-numeric-format-strings">Standard Numeric Format Strings</related>
         public readonly string ToString([StringSyntax(StringSyntaxAttribute.NumericFormat)] string? format, IFormatProvider? formatProvider)
@@ -565,5 +565,6 @@
 
             return $"<{X.ToString(format, formatProvider)}{separator} {Y.ToString(format, formatProvider)}{separator} {Z.ToString(format, formatProvider)}{separator} {W.ToString(format, formatProvider)}>";
         }
+#endif
     }
 }

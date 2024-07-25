@@ -1,7 +1,9 @@
-﻿namespace HexaEngine.Mathematics
+﻿namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
+#if NET8_0_OR_GREATER
     using System.Runtime.Intrinsics;
+#endif
 
     public static class VectorExtensions
     {
@@ -35,6 +37,7 @@
             return MathUtil.Normalize(v);
         }
 
+#if NET8_0_OR_GREATER
         public static Vector256<double> AsVector256(this Vector2D vector)
         {
             double x = vector.X;
@@ -44,7 +47,9 @@
 
             return Vector256.Create(x, y, z, w);
         }
+#endif
 
+#if NET8_0_OR_GREATER
         public static Vector2D AsVector2D(this Vector256<double> vector)
         {
             double x = vector.GetElement(0);
@@ -52,7 +57,9 @@
 
             return new(x, y);
         }
+#endif
 
+#if NET8_0_OR_GREATER
         public static Vector256<double> AsVector256(this Vector3D vector)
         {
             double x = vector.X;
@@ -62,7 +69,9 @@
 
             return Vector256.Create(x, y, z, w);
         }
+#endif
 
+#if NET8_0_OR_GREATER
         public static Vector3D AsVector3D(this Vector256<double> vector)
         {
             double x = vector.GetElement(0);
@@ -71,7 +80,9 @@
 
             return new(x, y, z);
         }
+#endif
 
+#if NET8_0_OR_GREATER
         public static Vector256<double> AsVector256(this Vector4D vector)
         {
             double x = vector.X;
@@ -81,7 +92,9 @@
 
             return Vector256.Create(x, y, z, w);
         }
+#endif
 
+#if NET8_0_OR_GREATER
         public static Vector4D AsVector4D(this Vector256<double> vector)
         {
             double x = vector.GetElement(0);
@@ -91,5 +104,6 @@
 
             return new(x, y, z, w);
         }
+#endif
     }
 }
