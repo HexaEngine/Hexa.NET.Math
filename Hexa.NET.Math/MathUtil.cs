@@ -2816,6 +2816,30 @@
         }
 
         /// <summary>
+        /// Gets the column of a <see cref="Matrix4x4"/>.
+        /// </summary>
+        /// <param name="matrix">The <see cref="Matrix4x4"/>.</param>
+        /// <param name="index">The column index.</param>
+        /// <returns>The column.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe Vector4 GetColumn(this Matrix4x4 matrix, int index)
+        {
+            if (index < 0 || index > 3)
+                throw new ArgumentOutOfRangeException(nameof(index), "Column index must be between 0 and 3.");
+
+            // Unsafe pointer to the first element of the matrix
+            float* m = (float*)&matrix;
+
+            Vector4 column;
+            column.X = m[index + 0 * 4];
+            column.Y = m[index + 1 * 4];
+            column.Z = m[index + 2 * 4];
+            column.W = m[index + 3 * 4];
+
+            return column;
+        }
+
+        /// <summary>
         /// Gets the row of a <see cref="Matrix4x4"/>.
         /// </summary>
         /// <param name="matrix">The <see cref="Matrix4x4"/>.</param>
@@ -2825,17 +2849,18 @@
         public static unsafe Vector4 GetRow(this Matrix4x4 matrix, int index)
         {
             if (index < 0 || index > 3)
+            {
                 throw new ArgumentOutOfRangeException(nameof(index), "Row index must be between 0 and 3.");
+            }
 
             // Unsafe pointer to the first element of the matrix
             float* m = (float*)&matrix;
 
             Vector4 row;
-            row.X = m[index + 0 * 4]; // First column
-            row.Y = m[index + 1 * 4]; // Second column
-            row.Z = m[index + 2 * 4]; // Third column
-            row.W = m[index + 3 * 4]; // Fourth column
-
+            row.X = m[index * 4 + 0];
+            row.Y = m[index * 4 + 1];
+            row.Z = m[index * 4 + 2];
+            row.W = m[index * 4 + 3];
             return row;
         }
 

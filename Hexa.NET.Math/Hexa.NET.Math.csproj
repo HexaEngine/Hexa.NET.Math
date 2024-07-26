@@ -32,11 +32,11 @@
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)' != 'Minimal'">
-		<PackageVersion>2.0.0-full</PackageVersion>
+		<PackageVersion>2.0.1-full</PackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Minimal'">
-		<PackageVersion>2.0.0-minimal</PackageVersion>
+		<PackageVersion>2.0.1-minimal</PackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
