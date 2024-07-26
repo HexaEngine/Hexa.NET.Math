@@ -40,7 +40,7 @@ To get started with the HexaEngine Math library, follow these steps:
     ```bash
     dotnet add package Hexa.NET.Math
     ```
-    Full version ``X.X.X-full`` vs minimal verions ```X.X.X-minimal```
+    Full version ``X.X.X-full`` vs minimal verions ```X.X.X-minimal```, make sure to enable allow pre-releases in Visual Studio to see them.
 
 2. **Include the library in your project**:
     ```csharp
