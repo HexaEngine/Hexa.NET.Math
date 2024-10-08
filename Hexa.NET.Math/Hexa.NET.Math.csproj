@@ -29,14 +29,15 @@
 		<PackageTags>HexaEngine Math C# .NET DotNet Sharp Windows macOS</PackageTags>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	</PropertyGroup>
 	
 	<PropertyGroup Condition="'$(Configuration)' != 'Minimal'">
-		<PackageVersion>2.0.1-full</PackageVersion>
+		<PackageVersion>2.0.2</PackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Minimal'">
-		<PackageVersion>2.0.1-minimal</PackageVersion>
+		<PackageVersion>2.0.2-minimal</PackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -46,6 +47,6 @@
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 	  <PackageReference Include="System.Numerics.Vectors" Version="4.5.0" />
-	  <PackageReference Include="System.Text.Json" Version="8.0.4" />
+	  <PackageReference Include="System.Text.Json" Version="8.0.5" />
 	</ItemGroup>
 </Project>
