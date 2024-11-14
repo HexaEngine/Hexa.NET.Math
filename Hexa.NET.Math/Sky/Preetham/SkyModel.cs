@@ -83,7 +83,7 @@
         /// <returns>Sky parameters for the given environmental conditions.</returns>
         public static SkyParameters CalculateSkyParameters(float turbidity, Vector3 sunDirection, float overcast, float horizCrush)
         {
-            float theta = MathF.Acos(Math.Clamp(sunDirection.Y, 0.0f, 1.0f)); //assumes normalized sun direction
+            float theta = MathF.Acos(MathUtil.Clamp(sunDirection.Y, 0.0f, 1.0f)); //assumes normalized sun direction
 
             SkyParameters parameters = default;
 
@@ -93,7 +93,7 @@
 
             if (sunDirection.Y < 0.0f)    // Handle sun going below the horizon
             {
-                float s = Math.Clamp(1.0f + sunDirection.Y * 50.0f, 0, 1);   // goes from 1 to 0 as the sun sets
+                float s = MathUtil.Clamp(1.0f + sunDirection.Y * 50.0f, 0, 1);   // goes from 1 to 0 as the sun sets
 
                 // Take C/E which control sun term to zero
                 parameters.C *= s;

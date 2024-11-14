@@ -73,7 +73,7 @@ namespace Hexa.NET.Mathematics.Noise
 
         private static float Clamp01(float value)
         {
-            return Math.Clamp(value, 0.0f, 1.0f);
+            return MathUtil.Clamp(value, 0.0f, 1.0f);
         }
 
         private static float SaturateClamp01(float value)

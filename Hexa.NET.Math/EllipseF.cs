@@ -72,8 +72,8 @@
         /// </summary>
         public readonly bool Intersects(RectangleF rect)
         {
-            float closestX = Math.Clamp(Center.X, rect.Left, rect.Right);
-            float closestY = Math.Clamp(Center.Y, rect.Top, rect.Bottom);
+            float closestX = MathUtil.Clamp(Center.X, rect.Left, rect.Right);
+            float closestY = MathUtil.Clamp(Center.Y, rect.Top, rect.Bottom);
 
             float distanceX = Center.X - closestX;
             float distanceY = Center.Y - closestY;

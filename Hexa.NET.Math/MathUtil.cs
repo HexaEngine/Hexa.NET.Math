@@ -19,27 +19,27 @@
         /// <summary>
         /// The factor to convert degrees to radians.
         /// </summary>
-        public const double DegToRadFactor = MathF.PI / 180;
+        public const double DegToRadFactor = PI / 180;
 
         /// <summary>
         /// The factor to convert radians to degrees.
         /// </summary>
-        public const double RadToDefFactor = 180 / MathF.PI;
+        public const double RadToDefFactor = 180 / PI;
 
         /// <summary>
         /// The mathematical constant PI.
         /// </summary>
-        public const float PI = MathF.PI;
+        public const float PI = 3.14159274F;
 
         /// <summary>
         /// Two times the mathematical constant PI.
         /// </summary>
-        public const float PI2 = 2 * MathF.PI;
+        public const float PI2 = 2 * PI;
 
         /// <summary>
         /// Half of the mathematical constant PI.
         /// </summary>
-        public const float PIDIV2 = MathF.PI / 2;
+        public const float PIDIV2 = PI / 2;
 
         /// <summary>
         /// The square root of 2.
@@ -192,9 +192,16 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void GetYawPitchRoll(this Quaternion r, out float yaw, out float pitch, out float roll)
         {
+#if NET5_0_OR_GREATER
             yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
             pitch = MathF.Asin((float)Math.Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
             roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
+#else
+            yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
+            pitch = MathF.Asin(Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
+            roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
+#endif
+
         }
 
         /// <summary>
@@ -205,9 +212,15 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 ToYawPitchRoll(this Quaternion r)
         {
+#if NET5_0_OR_GREATER
             float yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
             float pitch = MathF.Asin((float)Math.Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
             float roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
+#else
+            float yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
+            float pitch = MathF.Asin(Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
+            float roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
+#endif
             return new Vector3(yaw, pitch, roll);
         }
 
@@ -1429,11 +1442,11 @@
                 return 0;
             }
 
-            int bits = BitConverter.SingleToInt32Bits(value);
+            int bits = SingleToInt32Bits(value);
             exponent = (bits >> 23 & 0xFF) - 126;
             int mantissa = bits & 0x7FFFFF | 0x800000; // Set the hidden bit
 
-            float resultMantissa = BitConverter.Int32BitsToSingle(mantissa);
+            float resultMantissa = Int32BitsToSingle(mantissa);
             return resultMantissa;
         }
 
@@ -1483,7 +1496,7 @@
             }
 
             // Extract sign and exponent from the IEEE 754 representation
-            int bits = BitConverter.SingleToInt32Bits(x);
+            int bits = SingleToInt32Bits(x);
             int sign = bits >> 31 & 1;
             int oldExp = (bits >> 23 & 0xFF) - 127;
 
@@ -1492,7 +1505,7 @@
             int resultBits = (sign & 1) << 31 | newExp + 127 << 23 | bits & 0x7FFFFF;
 
             // Reconstruct the float with the modified exponent
-            return BitConverter.Int32BitsToSingle(resultBits);
+            return Int32BitsToSingle(resultBits);
         }
 
         /// <summary>
@@ -2304,7 +2317,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float Exp2(float x)
         {
-            return BitConverter.Int32BitsToSingle((int)(x * 0x00800000 + 126.0f) << 23);
+            return Int32BitsToSingle((int)(x * 0x00800000 + 126.0f) << 23);
         }
 
         /// <summary>
@@ -3285,9 +3298,42 @@
             return edge0 + (edge1 - edge0) * s;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int SingleToInt32Bits(float value)
+        {
+            return *(int*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint SingleToUInt32Bits(float value)
+        {
+            return *(uint*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static unsafe float UInt32BitsToSingle(uint value)
         {
             return *(float*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float Int32BitsToSingle(int value)
+        {
+            return *(float*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static double Clamp(double value, double min, double max)
+        {
+            if (value < min)
+            {
+                return min;
+            }
+            else if (value > max)
+            {
+                return max;
+            }
+            return value;
         }
     }
 }

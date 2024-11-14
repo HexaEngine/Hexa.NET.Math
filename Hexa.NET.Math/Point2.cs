@@ -301,6 +301,7 @@
         }
 #endif
 
+#if NET5_0_OR_GREATER
         /// <summary>
         /// Reads a <see cref="Point2"/> from a <see cref="Stream"/>.
         /// </summary>
@@ -387,5 +388,6 @@
                 BinaryPrimitives.WriteInt32BigEndian(dst[4..], Y);
             }
         }
+#endif
     }
 }

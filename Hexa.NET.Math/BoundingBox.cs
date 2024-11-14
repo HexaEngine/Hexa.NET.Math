@@ -610,6 +610,8 @@
             return $"{nameof(BoundingBox)} {{ {nameof(Min)} = {Min.ToString(format, formatProvider)}, {nameof(Max)} = {Max.ToString(format, formatProvider)} }}";
         }
 
+#if NET5_0_OR_GREATER
+
         /// <summary>
         /// Reads a BoundingBox from a stream using the specified endianness.
         /// </summary>
@@ -633,5 +635,6 @@
             stream.WriteVector3(Min, endianness);
             stream.WriteVector3(Max, endianness);
         }
+#endif
     }
 }

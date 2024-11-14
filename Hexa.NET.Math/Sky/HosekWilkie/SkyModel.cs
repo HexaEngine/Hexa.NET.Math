@@ -4010,9 +4010,9 @@
             double elevationK = Math.Pow(sun_theta / MathUtil.PIDIV2, 1.0f / 3.0f);
 
             // table has values for turbidity 1..10
-            int turbidity0 = Math.Clamp((int)turbidity, 1, 10);
+            int turbidity0 = MathUtil.Clamp((int)turbidity, 1, 10);
             int turbidity1 = Math.Min(turbidity0 + 1, 10);
-            float turbidityK = Math.Clamp(turbidity - turbidity0, 0.0f, 1.0f);
+            float turbidityK = MathUtil.Clamp(turbidity - turbidity0, 0.0f, 1.0f);
 
             double* datasetA0 = dataset;
             double* datasetA1 = dataset + stride * 6 * 10;
@@ -4073,7 +4073,7 @@
         /// <returns>Sky parameters for the given environmental conditions.</returns>
         public static SkyParameters CalculateSkyParameters(float turbidity, float albedo, Vector3 sunDirection, float overcast)
         {
-            float sun_theta = MathF.Acos(Math.Clamp(sunDirection.Y, 0.0f, 1.0f)); //assumes normalized sun direction
+            float sun_theta = MathF.Acos(MathUtil.Clamp(sunDirection.Y, 0.0f, 1.0f)); //assumes normalized sun direction
 
             SkyParameters parameters = default;
 

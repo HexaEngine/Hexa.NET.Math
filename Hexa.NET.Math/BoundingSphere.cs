@@ -295,6 +295,8 @@
             return $"Center:{Center.ToString(format, formatProvider)} Radius:{Radius.ToString(format, formatProvider)}";
         }
 
+#if NET5_0_OR_GREATER
+
         /// <summary>
         /// Reads a <see cref="BoundingSphere"/> from a binary stream using the specified endianness.
         /// </summary>
@@ -318,5 +320,6 @@
             stream.WriteVector3(Center, endianness);
             stream.WriteFloat(Radius, endianness);
         }
+#endif
     }
 }

@@ -232,6 +232,8 @@
             return PolynomialSymmetry.None;
         }
 
+#if NET5_0_OR_GREATER
+
         /// <summary>
         /// Finds the roots of the polynomial.
         /// </summary>
@@ -437,6 +439,7 @@
             return foundRoots;
         }
 
+
         private readonly int FindRootsSubStepSym(ref int foundRoots, Stack<Interval> walkStack, float[] roots)
         {
             const float tolerance = float.Epsilon;
@@ -471,6 +474,7 @@
 
             return foundRoots;
         }
+#endif
 
         /// <summary>
         /// Checks if there is a sign change in the polynomial function within the specified interval.

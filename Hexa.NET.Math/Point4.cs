@@ -360,6 +360,7 @@
         }
 #endif
 
+#if NET5_0_OR_GREATER
         /// <summary>
         /// Reads a <see cref="Point4"/> from a <see cref="Stream"/>.
         /// </summary>
@@ -413,5 +414,6 @@
 
             stream.Write(dst);
         }
+#endif
     }
 }

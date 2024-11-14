@@ -154,7 +154,7 @@ namespace Hexa.NET.Mathematics
                            y3 * t * t * t;
                 int index = i + (int)Math.Round(x0 * (curve.Samples.Length - 1));
                 if (index < curve.Samples.Length)
-                    curve.Samples[index] = (float)Math.Clamp(y, 0, 1);
+                    curve.Samples[index] = (float)MathUtil.Clamp(y, 0, 1);
             }
         }
     }
