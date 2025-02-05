@@ -6,6 +6,12 @@
     using System.Numerics;
     using System.Runtime.CompilerServices;
 
+#if NET5_0_OR_GREATER
+
+    using System.Runtime.Intrinsics;
+
+#endif
+
     /// <summary>
     /// Represents a 2D unsigned integer point in space.
     /// </summary>
@@ -63,6 +69,14 @@
             X = x;
             Y = y;
         }
+
+#if NET5_0_OR_GREATER
+
+        public static UPoint2 Create(uint x, uint y) => Vector128.Create(x, y, 0, 0).AsUPoint2();
+
+        public static UPoint2 Create(uint value) => Vector128.Create(value).AsUPoint2();
+
+#endif
 
         /// <summary>
         /// Gets or sets the element at the specified index.
@@ -151,7 +165,11 @@
         /// <returns>The element-wise sum of the two <see cref="UPoint2"/> instances.</returns>
         public static UPoint2 operator +(UPoint2 left, UPoint2 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128Unsafe() + right.AsVector128Unsafe()).AsUPoint2();
+#else
             return new UPoint2(left.X + right.X, left.Y + right.Y);
+#endif
         }
 
         /// <summary>
@@ -162,7 +180,11 @@
         /// <returns>The element-wise difference between the left and right <see cref="UPoint2"/> instances.</returns>
         public static UPoint2 operator -(UPoint2 left, UPoint2 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128Unsafe() - right.AsVector128Unsafe()).AsUPoint2();
+#else
             return new UPoint2(left.X - right.X, left.Y - right.Y);
+#endif
         }
 
         /// <summary>
@@ -173,7 +195,11 @@
         /// <returns>The element-wise product of the two <see cref="UPoint2"/> instances.</returns>
         public static UPoint2 operator *(UPoint2 left, UPoint2 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128Unsafe() * right.AsVector128Unsafe()).AsUPoint2();
+#else
             return new UPoint2(left.X * right.X, left.Y * right.Y);
+#endif
         }
 
         /// <summary>
@@ -184,29 +210,11 @@
         /// <returns>The element-wise division of the left <see cref="UPoint2"/> by the right <see cref="UPoint2"/> instances.</returns>
         public static UPoint2 operator /(UPoint2 left, UPoint2 right)
         {
+#if NET8_0_OR_GREATER
+            return (left.AsVector128Unsafe() / right.AsVector128Unsafe()).AsUPoint2();
+#else
             return new UPoint2(left.X / right.X, left.Y / right.Y);
-        }
-
-        /// <summary>
-        /// Adds a constant value to each element of a <see cref="UPoint2"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="UPoint2"/> instance to add to.</param>
-        /// <param name="right">The constant value to add to each element.</param>
-        /// <returns>A new <see cref="UPoint2"/> instance with each element increased by the constant value.</returns>
-        public static UPoint2 operator +(UPoint2 left, uint right)
-        {
-            return new UPoint2(left.X + right, left.Y + right);
-        }
-
-        /// <summary>
-        /// Subtracts a constant value from each element of a <see cref="UPoint2"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="UPoint2"/> instance to subtract from.</param>
-        /// <param name="right">The constant value to subtract from each element.</param>
-        /// <returns>A new <see cref="UPoint2"/> instance with each element decreased by the constant value.</returns>
-        public static UPoint2 operator -(UPoint2 left, uint right)
-        {
-            return new UPoint2(left.X - right, left.Y - right);
+#endif
         }
 
         /// <summary>
@@ -217,8 +225,14 @@
         /// <returns>A new <see cref="UPoint2"/> instance with each element multiplied by the constant value.</returns>
         public static UPoint2 operator *(UPoint2 left, uint right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128Unsafe() * right).AsUPoint2();
+#else
             return new UPoint2(left.X * right, left.Y * right);
+#endif
         }
+
+        public static UPoint2 operator *(uint left, UPoint2 right) => right * left;
 
         /// <summary>
         /// Divides each element of a <see cref="UPoint2"/> instance by a constant value.
@@ -228,50 +242,81 @@
         /// <returns>A new <see cref="UPoint2"/> instance with each element divided by the constant value.</returns>
         public static UPoint2 operator /(UPoint2 left, uint right)
         {
-            return new UPoint2(left.X / right, left.Y / right);
-        }
-
-        /// <summary>
-        /// Increments all elements of a <see cref="UPoint2"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint2"/> instance to increment.</param>
-        /// <returns>The <see cref="UPoint2"/> instance with all elements incremented by 1.</returns>
-        public static UPoint2 operator ++(UPoint2 point)
-        {
-            return new UPoint2(point.X++, point.Y++);
-        }
-
-        /// <summary>
-        /// Decrements all elements of a <see cref="UPoint2"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint2"/> instance to decrement.</param>
-        /// <returns>The <see cref="UPoint2"/> instance with all elements decremented by 1.</returns>
-        public static UPoint2 operator --(UPoint2 point)
-        {
-            return new UPoint2(point.X--, point.Y--);
-        }
-
-        /// <summary>
-        /// Implicitly converts a <see cref="Vector2"/> to a <see cref="UPoint2"/>.
-        /// </summary>
-        /// <param name="vector">The Vector4 to convert to a <see cref="UPoint2"/>.</param>
-        /// <returns>A <see cref="UPoint2"/> with each component rounded to the nearest unsigned integer value.</returns>
-        public static implicit operator UPoint2(Vector2 vector) => new() { X = (uint)vector.X, Y = (uint)vector.Y };
-
-        /// <summary>
-        /// Implicitly converts a <see cref="UPoint2"/> to a <see cref="Vector2"/>.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint2"/> to convert to a <see cref="Vector2"/>.</param>
-        /// <returns>A <see cref="Vector2"/> with each component equal to the respective <see cref="UPoint2"/> component as a float value.</returns>
-        public static implicit operator Vector2(UPoint2 point) => new() { X = point.X, Y = point.Y };
-
-        /// <summary>
-        /// Explicitly converts a <see cref="UPoint2"/> to a <see cref="Point2"/>.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint2"/> to convert to a <see cref="Point2"/>.</param>
-        /// <returns>A <see cref="Point2"/> with each component equal to the respective <see cref="UPoint2"/> component as a float value.</returns>
-        public static explicit operator Point2(UPoint2 point) => new Point2((int)point.X, (int)point.Y);
 #if NET8_0_OR_GREATER
+            return (left.AsVector128Unsafe() / right).AsUPoint2();
+#else
+            return new UPoint2(left.X / right, left.Y / right);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint2 Clamp(UPoint2 value1, UPoint2 min, UPoint2 max)
+        {
+#if NET9_0_OR_GREATER
+            return Vector128.Clamp(value1.AsVector128(), min.AsVector128(), max.AsVector128()).AsUPoint2();
+#else
+            return new(MathUtil.Clamp(value1.X, min.X, max.X), MathUtil.Clamp(value1.Y, min.Y, max.Y));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint Dot(UPoint2 x, UPoint2 y)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Dot(x.AsVector128(), y.AsVector128());
+#else
+            return (x.X * y.X) + (x.Y * y.Y);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly uint LengthSquared()
+        {
+            return Dot(this, this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float Length(UPoint2 x)
+        {
+            return MathF.Sqrt(LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Distance(UPoint2 x, UPoint2 y)
+        {
+            return MathF.Sqrt((x - y).LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint2 Min(UPoint2 value1, UPoint2 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Min(value1.AsVector128(), value2.AsVector128()).AsUPoint2();
+#else
+            return new(Math.Min(value1.X, value2.X), Math.Min(value1.Y, value2.Y));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint2 Max(UPoint2 value1, UPoint2 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Max(value1.AsVector128(), value2.AsVector128()).AsUPoint2();
+#else
+            return new(Math.Max(value1.X, value2.X), Math.Max(value1.Y, value2.Y));
+#endif
+        }
+
+        public static explicit operator UPoint2(Vector2 value) => new((uint)value.X, (uint)value.Y);
+
+        public static explicit operator UPoint2(Vector2D value) => new((uint)value.X, (uint)value.Y);
+
+        public static explicit operator UPoint2(Point2 value) => new((uint)value.X, (uint)value.Y);
+
+        public static implicit operator Vector2(UPoint2 value) => new(value.X, value.Y);
+
+#if NET8_0_OR_GREATER
+
         /// <summary>Returns the string representation of the current instance using default formatting.</summary>
         /// <returns>The string representation of the current instance.</returns>
         /// <remarks>This method returns a string in which each element of the vector is formatted using the "G" (general) format string and the formatting conventions of the current thread culture. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
@@ -304,6 +349,7 @@
 
             return $"<{X.ToString(format, formatProvider)}{separator} {Y.ToString(format, formatProvider)}>";
         }
+
 #endif
     }
 }

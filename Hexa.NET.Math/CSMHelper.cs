@@ -26,6 +26,25 @@ namespace Hexa.NET.Mathematics
         Log
     }
 
+    public unsafe struct CSMConfig
+    {
+        public int CascadeCount;
+        public CascadesSplitMode SplitMode = CascadesSplitMode.Log;
+        public float SplitLambda = 0.85f;
+        public float* FixedCascades;
+
+        public float ShadowMapSize;
+
+        public bool Stabilize = true;
+        public float FarFactor = 1.5f;
+        public float LightDistanceFactor = 4.0f;
+        public float PixelSnap = 8f;
+
+        public CSMConfig()
+        {
+        }
+    }
+
     /// <summary>
     /// Helper class for working with Cascaded Shadow Mapping (CSM).
     /// </summary>
@@ -93,7 +112,7 @@ namespace Hexa.NET.Mathematics
         /// <param name="smSize">The size of the shadow map.</param>
         /// <param name="stabilize">Whether to stabilize the shadow map.</param>
         /// <returns>The transposed light space matrix.</returns>
-        public static unsafe Matrix4x4 GetLightSpaceMatrix(Matrix4x4 cameraViewProjection, Transform light, ref BoundingFrustum lightFrustrum, float smSize, bool stabilize = true)
+        public static unsafe Matrix4x4 GetLightSpaceMatrix(Matrix4x4 cameraViewProjection, Transform light, ref BoundingFrustum lightFrustrum, in CSMConfig config)
         {
             Vector3* corners = stackalloc Vector3[BoundingFrustum.CornerCount];
 
@@ -108,10 +127,10 @@ namespace Hexa.NET.Mathematics
             }
             center /= BoundingFrustum.CornerCount;
 
-            if (stabilize)
+            if (config.Stabilize)
             {
-                const float farFactor = 1.5f;
-                const float lightDistanceFactor = 4.0f;
+                float farFactor = config.FarFactor;
+                float lightDistanceFactor = config.LightDistanceFactor;
                 // Compute radius of bounding sphere.
                 float radius = 0;
                 for (uint i = 0; i < BoundingFrustum.CornerCount; i++)
@@ -119,7 +138,7 @@ namespace Hexa.NET.Mathematics
                     float distance = (corners[i] - center).Length();
                     radius = MathF.Max(radius, distance);
                 }
-                radius = MathF.Ceiling(radius * 8) / 8;
+                radius = MathF.Ceiling(radius * config.PixelSnap) / config.PixelSnap;
 
                 // Compute AABB from the bounding sphere.
                 Vector3 maxExtents = new(radius);
@@ -141,12 +160,12 @@ namespace Hexa.NET.Mathematics
                 // Calculate center of the shadow volume and convert it to texel coords.
                 Matrix4x4 shadowMatrix = lightView * lightProjection;
                 Vector4 shadowOrigin = Vector4.Transform(Vector4.UnitW, shadowMatrix);
-                shadowOrigin *= smSize / 2.0f;
+                shadowOrigin *= config.ShadowMapSize / 2.0f;
 
                 // round texel coords for texel snapping and convert back to world space coords.
                 Vector4 roundedOrigin = MathUtil.Round(shadowOrigin);
                 Vector4 roundOffset = roundedOrigin - shadowOrigin;
-                roundOffset *= 2.0f / smSize;
+                roundOffset *= 2.0f / config.ShadowMapSize;
 
                 // offset the projection matrix for texel snapping.
                 Matrix4x4 shadowProjection = lightProjection;
@@ -269,7 +288,19 @@ namespace Hexa.NET.Mathematics
         /// <param name="smSize">The size of the shadow map.</param>
         /// <param name="cascadesCount">The number of cascades to calculate.</param>
         /// <returns>An array of light space matrices for each cascade.</returns>
+        [Obsolete("Use overload with CSMConfig instead.")]
         public static unsafe Matrix4x4* GetLightSpaceMatrices(CameraTransform camera, Transform light, Matrix4x4* ret, float* cascades, BoundingFrustum[] frustra, float smSize, int cascadesCount = 4)
+        {
+            CSMConfig settings = new()
+            {
+                CascadeCount = cascadesCount,
+                ShadowMapSize = smSize
+            };
+
+            return GetLightSpaceMatrices(camera, light, ret, cascades, frustra, settings);
+        }
+
+        public static unsafe Matrix4x4* GetLightSpaceMatrices(CameraTransform camera, Transform light, Matrix4x4* ret, float* cascades, BoundingFrustum[] frustra, in CSMConfig config)
         {
             float fov = camera.Fov;
             float aspect = camera.AspectRatio;
@@ -277,20 +308,34 @@ namespace Hexa.NET.Mathematics
             float near = camera.Near;
 
             Matrix4x4 view = camera.View;
-            GetCascadesLog(camera, cascades, cascadesCount);
-            for (int i = 0; i < cascadesCount; i++)
+            switch (config.SplitMode)
+            {
+                case CascadesSplitMode.Fixed:
+                    GetCascadesFixed(camera, cascades, config.CascadeCount, config.FixedCascades);
+                    break;
+
+                case CascadesSplitMode.Linear:
+                    GetCascadesLinear(camera, cascades, config.CascadeCount);
+                    break;
+
+                case CascadesSplitMode.Log:
+                    GetCascadesLog(camera, cascades, config.CascadeCount, config.SplitLambda);
+                    break;
+            }
+
+            for (int i = 0; i < config.CascadeCount; i++)
             {
                 if (i == 0)
                 {
-                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, near, cascades[i]), light, ref frustra[i], smSize);
+                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, near, cascades[i]), light, ref frustra[i], config);
                 }
-                else if (i < cascadesCount)
+                else if (i < config.CascadeCount)
                 {
-                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, cascades[i - 1], cascades[i]), light, ref frustra[i], smSize);
+                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, cascades[i - 1], cascades[i]), light, ref frustra[i], config);
                 }
                 else
                 {
-                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, cascades[i - 1], far), light, ref frustra[i], smSize);
+                    ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, cascades[i - 1], far), light, ref frustra[i], config);
                 }
             }
 
@@ -298,4 +343,5 @@ namespace Hexa.NET.Mathematics
         }
     }
 }
+
 #endif

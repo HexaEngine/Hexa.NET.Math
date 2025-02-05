@@ -6,6 +6,12 @@
     using System.Numerics;
     using System.Runtime.CompilerServices;
 
+#if NET5_0_OR_GREATER
+
+    using System.Runtime.Intrinsics;
+
+#endif
+
     /// <summary>
     /// Represents a 4D unsigned integer point in space.
     /// </summary>
@@ -117,6 +123,20 @@
             W = w;
         }
 
+#if NET5_0_OR_GREATER
+
+        public static UPoint4 Create(uint x, uint y, uint z, uint w) => Vector128.Create(x, y, z, w).AsUPoint4();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint4 Create(UPoint2 value, uint z, uint w) => value.AsVector128Unsafe().WithElement(2, z).WithElement(3, w).AsUPoint4();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint4 Create(UPoint3 value, uint w) => value.AsVector128Unsafe().WithElement(3, w).AsUPoint4();
+
+        public static UPoint4 Create(uint value) => Vector128.Create(value).AsUPoint4();
+
+#endif
+
         /// <summary>
         /// Gets or sets the element at the specified index.
         /// </summary>
@@ -209,7 +229,11 @@
         /// <returns>The element-wise sum of the two <see cref="UPoint4"/> instances.</returns>
         public static UPoint4 operator +(UPoint4 left, UPoint4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() + right.AsVector128()).AsUPoint4();
+#else
             return new UPoint4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+#endif
         }
 
         /// <summary>
@@ -220,7 +244,11 @@
         /// <returns>The element-wise difference between the left and right <see cref="UPoint4"/> instances.</returns>
         public static UPoint4 operator -(UPoint4 left, UPoint4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() - right.AsVector128()).AsUPoint4();
+#else
             return new UPoint4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+#endif
         }
 
         /// <summary>
@@ -231,7 +259,11 @@
         /// <returns>The element-wise product of the two <see cref="UPoint4"/> instances.</returns>
         public static UPoint4 operator *(UPoint4 left, UPoint4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() * right.AsVector128()).AsUPoint4();
+#else
             return new UPoint4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+#endif
         }
 
         /// <summary>
@@ -242,29 +274,11 @@
         /// <returns>The element-wise division of the left <see cref="UPoint4"/> by the right <see cref="UPoint4"/> instances.</returns>
         public static UPoint4 operator /(UPoint4 left, UPoint4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() / right.AsVector128()).AsUPoint4();
+#else
             return new UPoint4(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
-        }
-
-        /// <summary>
-        /// Adds a constant value to each element of a <see cref="UPoint4"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="UPoint4"/> instance to add to.</param>
-        /// <param name="right">The constant value to add to each element.</param>
-        /// <returns>A new <see cref="UPoint4"/> instance with each element increased by the constant value.</returns>
-        public static UPoint4 operator +(UPoint4 left, uint right)
-        {
-            return new UPoint4(left.X + right, left.Y + right, left.Z + right, left.W + right);
-        }
-
-        /// <summary>
-        /// Subtracts a constant value from each element of a <see cref="UPoint4"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="UPoint4"/> instance to subtract from.</param>
-        /// <param name="right">The constant value to subtract from each element.</param>
-        /// <returns>A new <see cref="UPoint4"/> instance with each element decreased by the constant value.</returns>
-        public static UPoint4 operator -(UPoint4 left, uint right)
-        {
-            return new UPoint4(left.X - right, left.Y - right, left.Z - right, left.W - right);
+#endif
         }
 
         /// <summary>
@@ -275,8 +289,14 @@
         /// <returns>A new <see cref="UPoint4"/> instance with each element multiplied by the constant value.</returns>
         public static UPoint4 operator *(UPoint4 left, uint right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() * right).AsUPoint4();
+#else
             return new UPoint4(left.X * right, left.Y * right, left.Z * right, left.W * right);
+#endif
         }
+
+        public static UPoint4 operator *(uint left, UPoint4 right) => right * left;
 
         /// <summary>
         /// Divides each element of a <see cref="UPoint4"/> instance by a constant value.
@@ -286,43 +306,81 @@
         /// <returns>A new <see cref="UPoint4"/> instance with each element divided by the constant value.</returns>
         public static UPoint4 operator /(UPoint4 left, uint right)
         {
-            return new UPoint4(left.X / right, left.Y / right, left.Z / right, left.W / right);
-        }
-
-        /// <summary>
-        /// Increments all elements of a <see cref="UPoint4"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint4"/> instance to increment.</param>
-        /// <returns>The <see cref="UPoint4"/> instance with all elements incremented by 1.</returns>
-        public static UPoint4 operator ++(UPoint4 point)
-        {
-            return new UPoint4(point.X + 1, point.Y + 1, point.Z + 1, point.W + 1);
-        }
-
-        /// <summary>
-        /// Decrements all elements of a <see cref="UPoint4"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint4"/> instance to decrement.</param>
-        /// <returns>The <see cref="UPoint4"/> instance with all elements decremented by 1.</returns>
-        public static UPoint4 operator --(UPoint4 point)
-        {
-            return new UPoint4(point.X - 1, point.Y - 1, point.Z - 1, point.W - 1);
-        }
-
-        /// <summary>
-        /// Implicitly converts a <see cref="Vector4"/> to a <see cref="UPoint4"/>.
-        /// </summary>
-        /// <param name="vector">The Vector4 to convert to a <see cref="UPoint4"/>.</param>
-        /// <returns>A <see cref="UPoint4"/> with each component rounded to the nearest unsigned integer value.</returns>
-        public static implicit operator UPoint4(Vector4 vector) => new() { X = (uint)vector.X, Y = (uint)vector.Y, Z = (uint)vector.Z, W = (uint)vector.W };
-
-        /// <summary>
-        /// Implicitly converts a <see cref="UPoint4"/> to a <see cref="Vector4"/>.
-        /// </summary>
-        /// <param name="point">The <see cref="UPoint4"/> to convert to a <see cref="Vector4"/>.</param>
-        /// <returns>A <see cref="Vector4"/> with each component equal to the respective <see cref="UPoint4"/> component as a float value.</returns>
-        public static implicit operator Vector4(UPoint4 point) => new() { X = point.X, Y = point.Y, Z = point.Z, W = point.W };
 #if NET8_0_OR_GREATER
+            return (left.AsVector128() / right).AsUPoint4();
+#else
+            return new UPoint4(left.X / right, left.Y / right, left.Z / right, left.W / right);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint4 Clamp(UPoint4 value1, UPoint4 min, UPoint4 max)
+        {
+#if NET9_0_OR_GREATER
+            return Vector128.Clamp(value1.AsVector128(), min.AsVector128(), max.AsVector128()).AsUPoint4();
+#else
+            return new(MathUtil.Clamp(value1.X, min.X, max.X), MathUtil.Clamp(value1.Y, min.Y, max.Y), MathUtil.Clamp(value1.Z, min.Z, max.Z), MathUtil.Clamp(value1.W, min.W, max.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe uint Dot(UPoint4 x, UPoint4 y)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Dot(x.AsVector128(), y.AsVector128());
+#else
+            return (x.X * y.X) + (x.Y * y.Y) + (x.Z * y.Z) + (x.W * y.W);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly uint LengthSquared()
+        {
+            return Dot(this, this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float Length()
+        {
+            return MathF.Sqrt(LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Distance(UPoint4 x, UPoint4 y)
+        {
+            return MathF.Sqrt((x - y).LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint4 Min(UPoint4 value1, UPoint4 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Min(value1.AsVector128(), value2.AsVector128()).AsUPoint4();
+#else
+            return new(Math.Min(value1.X, value2.X), Math.Min(value1.Y, value2.Y), Math.Min(value1.Z, value2.Z), Math.Min(value1.W, value2.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static UPoint4 Max(UPoint4 value1, UPoint4 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Max(value1.AsVector128(), value2.AsVector128()).AsUPoint4();
+#else
+            return new(Math.Max(value1.X, value2.X), Math.Max(value1.Y, value2.Y), Math.Max(value1.Z, value2.Z), Math.Max(value1.W, value2.W));
+#endif
+        }
+
+        public static explicit operator UPoint4(Vector4 value) => new((uint)value.X, (uint)value.Y, (uint)value.Z, (uint)value.W);
+
+        public static explicit operator UPoint4(Vector4D value) => new((uint)value.X, (uint)value.Y, (uint)value.Z, (uint)value.W);
+
+        public static explicit operator UPoint4(Point4 value) => new((uint)value.X, (uint)value.Y, (uint)value.Z, (uint)value.W);
+
+        public static implicit operator Vector4(UPoint4 value) => new(value.X, value.Y, value.Z, value.W);
+
+#if NET8_0_OR_GREATER
+
         /// <summary>Returns the string representation of the current instance using default formatting.</summary>
         /// <returns>The string representation of the current instance.</returns>
         /// <remarks>This method returns a string in which each element of the vector is formatted using the "G" (general) format string and the formatting conventions of the current thread culture. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
@@ -355,6 +413,7 @@
 
             return $"<{X.ToString(format, formatProvider)}{separator} {Y.ToString(format, formatProvider)}{separator} {Z.ToString(format, formatProvider)}{separator} {W.ToString(format, formatProvider)}>";
         }
+
 #endif
     }
 }

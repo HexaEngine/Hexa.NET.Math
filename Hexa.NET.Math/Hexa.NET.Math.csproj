@@ -6,7 +6,7 @@
 		<Nullable>enable</Nullable>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<Configurations>Debug;Release;Minimal</Configurations>
-		<RootNamespace>Hexa.NET.Mathematicsematics</RootNamespace>
+		<RootNamespace>Hexa.NET.Mathematics</RootNamespace>
 		<LangVersion>12</LangVersion>
 
 		<IsAotCompatible>true</IsAotCompatible>
@@ -15,13 +15,13 @@
 		<EnableAotAnalyzer>true</EnableAotAnalyzer>
 
 		<PackageId>Hexa.NET.Math</PackageId>
-		<AssemblyVersion>1.0.0</AssemblyVersion>
+		<AssemblyVersion>1.0.1</AssemblyVersion>
 		<Authors>Juna</Authors>
 		<AssemblyName>Hexa.NET.Math</AssemblyName>
 		<PackageProjectUrl>https://github.com/HexaEngine/Hexa.NET.Math</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/HexaEngine/Hexa.NET.Math</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<Description>The Math library for HexaEngine, provides both minimal and full version.</Description>
+		<Description>The Math library for HexaEngine.</Description>
 		<PackageTags>HexaEngine Math C# .NET DotNet Sharp Windows macOS</PackageTags>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -29,11 +29,11 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' != 'Minimal'">
-		<PackageVersion>2.0.3</PackageVersion>
+		<PackageVersion>2.0.5</PackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Minimal'">
-		<PackageVersion>2.0.3-minimal</PackageVersion>
+		<PackageVersion>2.0.5-minimal</PackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

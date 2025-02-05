@@ -19,12 +19,12 @@
         /// <summary>
         /// The factor to convert degrees to radians.
         /// </summary>
-        public const double DegToRadFactor = PI / 180;
+        public const double DegToRadFactor = Math.PI / 180;
 
         /// <summary>
         /// The factor to convert radians to degrees.
         /// </summary>
-        public const double RadToDefFactor = 180 / PI;
+        public const double RadToDefFactor = 180 / Math.PI;
 
         /// <summary>
         /// The mathematical constant PI.
@@ -201,7 +201,6 @@
             pitch = MathF.Asin(Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
             roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
 #endif
-
         }
 
         /// <summary>
@@ -3334,6 +3333,52 @@
                 return max;
             }
             return value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe double CopySign(double value, double sign)
+        {
+            long valueBits = *(long*)&value;
+            long signBits = *(long*)&sign & long.MinValue;
+            long result = (valueBits & long.MaxValue | signBits);
+            return *(double*)&result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe float CopySign(float value, float sign)
+        {
+            int valueBits = *(int*)&value;
+            int signBits = *(int*)&sign & int.MinValue;
+            int result = (valueBits & int.MaxValue | signBits);
+            return *(float*)&result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static long CopySign(long value, long sign)
+        {
+            long signBit = sign & long.MinValue;
+            return (value & long.MaxValue) | signBit;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int CopySign(int value, int sign)
+        {
+            int signBit = sign & int.MinValue;
+            return (value & int.MaxValue) | signBit;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static short CopySign(short value, short sign)
+        {
+            int signBit = (short)(sign & short.MinValue);
+            return (short)((value & short.MaxValue) | signBit);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static sbyte CopySign(sbyte value, sbyte sign)
+        {
+            int signBit = (sbyte)(sign & sbyte.MinValue);
+            return (sbyte)((value & sbyte.MaxValue) | signBit);
         }
     }
 }

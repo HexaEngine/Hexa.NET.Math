@@ -5,6 +5,12 @@
     using System.Numerics;
     using System.Runtime.CompilerServices;
 
+#if NET5_0_OR_GREATER
+
+    using System.Runtime.Intrinsics;
+
+#endif
+
     /// <summary>
     /// Represents a 4-dimensional double-precision vector.
     /// </summary>
@@ -116,6 +122,20 @@
             W = w;
         }
 
+#if NET5_0_OR_GREATER
+
+        public static Vector4D Create(double value) => Vector256.Create(value).AsVector4D();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Create(Vector2D value, double z, double w) => value.AsVector256Unsafe().WithElement(2, z).WithElement(3, w).AsVector4D();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Create(Vector3D value, double w) => value.AsVector256Unsafe().WithElement(3, w).AsVector4D();
+
+        public static Vector4D Create(double x, double y, double z, double w) => Vector256.Create(x, y, z, w).AsVector4D();
+
+#endif
+
         /// <summary>
         /// Gets or sets the element at the specified index.
         /// </summary>
@@ -144,46 +164,6 @@
             }
         }
 
-        /// <summary>Adds two vectors together.</summary>
-        /// <param name="left">The first vector to add.</param>
-        /// <param name="right">The second vector to add.</param>
-        /// <returns>The summed vector.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D operator +(Vector4D left, Vector4D right)
-        {
-            return new Vector4D(
-                left.X + right.X,
-                left.Y + right.Y,
-                left.Z + right.Z,
-                left.W + right.W
-            );
-        }
-
-        /// <summary>Divides the first vector by the second.</summary>
-        /// <param name="left">The first vector.</param>
-        /// <param name="right">The second vector.</param>
-        /// <returns>The vector that results from dividing <paramref name="left" /> by <paramref name="right" />.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D operator /(Vector4D left, Vector4D right)
-        {
-            return new Vector4D(
-                left.X / right.X,
-                left.Y / right.Y,
-                left.Z / right.Z,
-                left.W / right.W
-            );
-        }
-
-        /// <summary>Divides the specified vector by a specified scalar value.</summary>
-        /// <param name="value1">The vector.</param>
-        /// <param name="value2">The scalar value.</param>
-        /// <returns>The result of the division.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D operator /(Vector4D value1, double value2)
-        {
-            return value1 / new Vector4D(value2);
-        }
-
         /// <summary>Returns a value that indicates whether each pair of elements in two specified vectors is equal.</summary>
         /// <param name="left">The first vector to compare.</param>
         /// <param name="right">The second vector to compare.</param>
@@ -191,10 +171,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Vector4D left, Vector4D right)
         {
-            return left.X == right.X
-                && left.Y == right.Y
-                && left.Z == right.Z
-                && left.W == right.W;
+#if NET7_0_OR_GREATER
+            return left.AsVector256() == right.AsVector256();
+#else
+            return left.X == right.X && left.Y == right.Y && left.Z == right.Z && left.W == right.W;
+#endif
         }
 
         /// <summary>Returns a value that indicates whether two specified vectors are not equal.</summary>
@@ -206,6 +187,20 @@
             return !(left == right);
         }
 
+        /// <summary>Adds two vectors together.</summary>
+        /// <param name="left">The first vector to add.</param>
+        /// <param name="right">The second vector to add.</param>
+        /// <returns>The summed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D operator +(Vector4D left, Vector4D right)
+        {
+#if NET7_0_OR_GREATER
+            return (left.AsVector256() + right.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+#endif
+        }
+
         /// <summary>Returns a new vector whose values are the product of each pair of elements in two specified vectors.</summary>
         /// <param name="left">The first vector.</param>
         /// <param name="right">The second vector.</param>
@@ -213,12 +208,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D operator *(Vector4D left, Vector4D right)
         {
-            return new Vector4D(
-                left.X * right.X,
-                left.Y * right.Y,
-                left.Z * right.Z,
-                left.W * right.W
-            );
+#if NET7_0_OR_GREATER
+            return (left.AsVector256() * right.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+#endif
         }
 
         /// <summary>Multiplies the specified vector by the specified scalar value.</summary>
@@ -228,17 +222,42 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D operator *(Vector4D left, double right)
         {
-            return left * new Vector4D(right);
+#if NET7_0_OR_GREATER
+            return (left.AsVector256() * right).AsVector4D();
+#else
+            return new Vector4D(left.X * right, left.Y * right, left.Z * right, left.W * right);
+#endif
         }
 
-        /// <summary>Multiplies the scalar value by the specified vector.</summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D operator *(double left, Vector4D right) => right * left;
+
+        /// <summary>Divides the first vector by the second.</summary>
+        /// <param name="left">The first vector.</param>
+        /// <param name="right">The second vector.</param>
+        /// <returns>The vector that results from dividing <paramref name="left" /> by <paramref name="right" />.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D operator /(Vector4D left, Vector4D right)
+        {
+#if NET7_0_OR_GREATER
+            return (left.AsVector256() / right.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
+#endif
+        }
+
+        /// <summary>Divides the specified vector by a specified scalar value.</summary>
         /// <param name="left">The vector.</param>
         /// <param name="right">The scalar value.</param>
-        /// <returns>The scaled vector.</returns>
+        /// <returns>The result of the division.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D operator *(double left, Vector4D right)
+        public static Vector4D operator /(Vector4D left, double right)
         {
-            return right * left;
+#if NET8_0_OR_GREATER
+            return (left.AsVector256() / right).AsVector4D();
+#else
+            return left / new Vector4D(right);
+#endif
         }
 
         /// <summary>Subtracts the second vector from the first.</summary>
@@ -250,12 +269,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D operator -(Vector4D left, Vector4D right)
         {
-            return new Vector4D(
-                left.X - right.X,
-                left.Y - right.Y,
-                left.Z - right.Z,
-                left.W - right.W
-            );
+#if NET7_0_OR_GREATER
+            return (left.AsVector256() - right.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+#endif
         }
 
         /// <summary>Negates the specified vector.</summary>
@@ -265,27 +283,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D operator -(Vector4D value)
         {
-            return -value;
-        }
-
-        /// <summary>
-        /// Implicitly converts from a single-precision vector into a double-precision vector.
-        /// </summary>
-        /// <param name="v">The single-precision vector.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector4D(Vector4 v)
-        {
-            return new Vector4D(v.X, v.Y, v.Z, v.W);
-        }
-
-        /// <summary>
-        /// Implicitly converts from an integer vector into a double-precision vector.
-        /// </summary>
-        /// <param name="v">The integer vector.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator Vector4D(Point4 v)
-        {
-            return new Vector4D(v.X, v.Y, v.Z, v.W);
+#if NET7_0_OR_GREATER
+            return (-value.AsVector256()).AsVector4D();
+#else
+            return new(-value.X, -value.Y, -value.Z, -value.W);
+#endif
         }
 
         /// <summary>Returns a vector whose elements are the absolute values of each of the specified vector's elements.</summary>
@@ -294,23 +296,18 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Abs(Vector4D value)
         {
-            return new Vector4D(
-                Math.Abs(value.X),
-                Math.Abs(value.Y),
-                Math.Abs(value.Z),
-                Math.Abs(value.W)
-            );
+#if NET7_0_OR_GREATER
+            return Vector256.Abs(value.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Abs(value.X), Math.Abs(value.Y), Math.Abs(value.Z), Math.Abs(value.W));
+#endif
         }
 
         /// <summary>Adds two vectors together.</summary>
         /// <param name="left">The first vector to add.</param>
         /// <param name="right">The second vector to add.</param>
         /// <returns>The summed vector.</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Add(Vector4D left, Vector4D right)
-        {
-            return left + right;
-        }
+        public static Vector4D Add(Vector4D left, Vector4D right) => left + right;
 
         /// <summary>Restricts a vector between a minimum and a maximum value.</summary>
         /// <param name="value1">The vector to restrict.</param>
@@ -320,8 +317,48 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Clamp(Vector4D value1, Vector4D min, Vector4D max)
         {
-            // We must follow HLSL behavior in the case user specified min value is bigger than max value.
+#if NET9_0_OR_GREATER
+            return Vector256.Clamp(value1.AsVector256(), min.AsVector256(), max.AsVector256()).AsVector4D();
+#else
             return Min(Max(value1, min), max);
+#endif
+        }
+
+#if NET9_0_OR_GREATER
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D ClampNative(Vector4D value1, Vector4D min, Vector4D max) => Vector256.ClampNative(value1.AsVector256(), min.AsVector256(), max.AsVector256()).AsVector4D();
+
+#endif
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D CopySign(Vector4D value, Vector4D sign)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.CopySign(value.AsVector256(), sign.AsVector256()).AsVector4D();
+#else
+            return new(MathUtil.CopySign(value.X, sign.X), MathUtil.CopySign(value.Y, sign.Y), MathUtil.CopySign(value.Z, sign.Z), MathUtil.CopySign(value.W, sign.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Cos(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Cos(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Cos(vector.X), Math.Cos(vector.Y), Math.Cos(vector.Z), Math.Cos(vector.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D DegreesToRadians(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.DegreesToRadians(vector.AsVector256()).AsVector4D();
+#else
+            return vector * MathUtil.DegToRadFactor;
+#endif
         }
 
         /// <summary>Computes the Euclidean distance between the two given points.</summary>
@@ -329,42 +366,28 @@
         /// <param name="value2">The second point.</param>
         /// <returns>The distance.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double Distance(Vector4D value1, Vector4D value2)
-        {
-            double distanceSquared = DistanceSquared(value1, value2);
-            return Math.Sqrt(distanceSquared);
-        }
+        public static double Distance(Vector4D value1, Vector4D value2) => Math.Sqrt(DistanceSquared(value1, value2));
 
         /// <summary>Returns the Euclidean distance squared between two specified points.</summary>
         /// <param name="value1">The first point.</param>
         /// <param name="value2">The second point.</param>
         /// <returns>The distance squared.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static double DistanceSquared(Vector4D value1, Vector4D value2)
-        {
-            Vector4D difference = value1 - value2;
-            return Dot(difference, difference);
-        }
+        public static double DistanceSquared(Vector4D value1, Vector4D value2) => (value1 - value2).LengthSquared();
 
         /// <summary>Divides the first vector by the second.</summary>
         /// <param name="left">The first vector.</param>
         /// <param name="right">The second vector.</param>
         /// <returns>The vector resulting from the division.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Divide(Vector4D left, Vector4D right)
-        {
-            return left / right;
-        }
+        public static Vector4D Divide(Vector4D left, Vector4D right) => left / right;
 
         /// <summary>Divides the specified vector by a specified scalar value.</summary>
         /// <param name="left">The vector.</param>
         /// <param name="divisor">The scalar value.</param>
         /// <returns>The vector that results from the division.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Divide(Vector4D left, double divisor)
-        {
-            return left / divisor;
-        }
+        public static Vector4D Divide(Vector4D left, double divisor) => left / divisor;
 
         /// <summary>Returns the dot product of two vectors.</summary>
         /// <param name="vector1">The first vector.</param>
@@ -373,10 +396,41 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static double Dot(Vector4D vector1, Vector4D vector2)
         {
-            return vector1.X * vector2.X
-                 + vector1.Y * vector2.Y
-                 + vector1.Z * vector2.Z
-                 + vector1.W * vector2.W;
+#if NET7_0_OR_GREATER
+            return Vector256.Dot(vector1.AsVector256(), vector2.AsVector256());
+#else
+            return vector1.X * vector2.X + vector1.Y * vector2.Y + vector1.Z * vector2.Z + vector1.W * vector2.W;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Exp(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Exp(vector.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Exp(vector.X), Math.Exp(vector.Y), Math.Exp(vector.Z), Math.Exp(vector.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D FusedMultiplyAdd(Vector4D left, Vector4D right, Vector4D addend)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.FusedMultiplyAdd(left.AsVector256(), right.AsVector256(), addend.AsVector256()).AsVector4D();
+#else
+            return new Vector4D((left.X * right.X) + addend.X, (left.Y * right.Y) + addend.Y, (left.Z * right.Z) + addend.Z, (left.W * right.W) + addend.W);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Hypot(Vector4D x, Vector4D y)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Hypot(x.AsVector256(), y.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Sqrt((x.X * x.X) + (y.X * y.X)), Math.Sqrt((x.Y * x.Y) + (y.Y * y.Y)), Math.Sqrt((x.Z * x.Z) + (y.Z * y.Z)), Math.Sqrt((x.W * x.W) + (y.W * y.W)));
+#endif
         }
 
         /// <summary>Performs a linear interpolation between two vectors based on the given weighting.</summary>
@@ -387,7 +441,41 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Lerp(Vector4D value1, Vector4D value2, double amount)
         {
+#if NET9_0_OR_GREATER
+            return Vector256.Lerp(value1.AsVector256(), value2.AsVector256(), Create(amount).AsVector256()).AsVector4D();
+#else
             return value1 * (1.0f - amount) + value2 * amount;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Lerp(Vector4D value1, Vector4D value2, Vector4D amount)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Lerp(value1.AsVector256(), value2.AsVector256(), amount.AsVector256()).AsVector4D();
+#else
+            return new(MathUtil.Lerp(value1.X, value2.X, amount.X), MathUtil.Lerp(value1.Y, value2.Y, amount.Y), MathUtil.Lerp(value1.Z, value2.Z, amount.Z), MathUtil.Lerp(value1.W, value2.W, amount.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Log(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Log(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Log(vector.X), Math.Log(vector.Y), Math.Log(vector.Z), Math.Log(vector.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Log2(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Log2(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Log(vector.X, 2), Math.Log(vector.Y, 2), Math.Log(vector.Z, 2), Math.Log(vector.W, 2));
+#endif
         }
 
         /// <summary>Returns a vector whose elements are the maximum of each of the pairs of elements in two specified vectors.</summary>
@@ -397,12 +485,58 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Max(Vector4D value1, Vector4D value2)
         {
+#if NET7_0_OR_GREATER
+            return Vector256.Max(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Max(value1.X, value2.X), Math.Max(value1.Y, value2.Y), Math.Max(value1.Z, value2.Z), Math.Max(value1.W, value2.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MaxMagnitude(Vector4D value1, Vector4D value2)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MaxMagnitude(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Abs(value1.X) > Math.Abs(value2.X) ? value1.X : value2.X, Math.Abs(value1.Y) > Math.Abs(value2.Y) ? value1.Y : value2.Y, Math.Abs(value1.Z) > Math.Abs(value2.Z) ? value1.Z : value2.Z, Math.Abs(value1.W) > Math.Abs(value2.W) ? value1.W : value2.W);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MaxMagnitudeNumber(Vector4D value1, Vector4D value2)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MaxMagnitudeNumber(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+#else
             return new Vector4D(
-                value1.X > value2.X ? value1.X : value2.X,
-                value1.Y > value2.Y ? value1.Y : value2.Y,
-                value1.Z > value2.Z ? value1.Z : value2.Z,
-                value1.W > value2.W ? value1.W : value2.W
+                  double.IsNaN(value1.X) ? value2.X : double.IsNaN(value2.X) ? value1.X : Math.Abs(value1.X) > Math.Abs(value2.X) ? value1.X : value2.X,
+                  double.IsNaN(value1.Y) ? value2.Y : double.IsNaN(value2.Y) ? value1.Y : Math.Abs(value1.Y) > Math.Abs(value2.Y) ? value1.Y : value2.Y,
+                  double.IsNaN(value1.Z) ? value2.Z : double.IsNaN(value2.Z) ? value1.Z : Math.Abs(value1.Z) > Math.Abs(value2.Z) ? value1.Z : value2.Z,
+                  double.IsNaN(value1.W) ? value2.W : double.IsNaN(value2.W) ? value1.W : Math.Abs(value1.W) > Math.Abs(value2.W) ? value1.W : value2.W
             );
+#endif
+        }
+
+#if NET9_0_OR_GREATER
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MaxNative(Vector4D value1, Vector4D value2) => Vector256.MaxNative(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+
+#endif
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MaxNumber(Vector4D value1, Vector4D value2)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MaxNumber(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(
+                double.IsNaN(value1.X) ? value2.X : double.IsNaN(value2.X) ? value1.X : Math.Max(value1.X, value2.X),
+                double.IsNaN(value1.Y) ? value2.Y : double.IsNaN(value2.Y) ? value1.Y : Math.Max(value1.Y, value2.Y),
+                double.IsNaN(value1.Z) ? value2.Z : double.IsNaN(value2.Z) ? value1.Z : Math.Max(value1.Z, value2.Z),
+                double.IsNaN(value1.W) ? value2.W : double.IsNaN(value2.W) ? value1.W : Math.Max(value1.W, value2.W)
+            );
+#endif
         }
 
         /// <summary>Returns a vector whose elements are the minimum of each of the pairs of elements in two specified vectors.</summary>
@@ -412,12 +546,58 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Min(Vector4D value1, Vector4D value2)
         {
+#if NET7_0_OR_GREATER
+            return Vector256.Min(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Min(value1.X, value2.X), Math.Min(value1.Y, value2.Y), Math.Min(value1.Z, value2.Z), Math.Min(value1.W, value2.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MinMagnitude(Vector4D x, Vector4D y)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MinMagnitude(x.AsVector256(), y.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Abs(x.X) < Math.Abs(y.X) ? x.X : y.X, Math.Abs(x.Y) < Math.Abs(y.Y) ? x.Y : y.Y, Math.Abs(x.Z) < Math.Abs(y.Z) ? x.Z : y.Z, Math.Abs(x.W) < Math.Abs(y.W) ? x.W : y.W);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MinMagnitudeNumber(Vector4D x, Vector4D y)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MinMagnitudeNumber(x.AsVector256(), y.AsVector256()).AsVector4D();
+#else
             return new Vector4D(
-                value1.X < value2.X ? value1.X : value2.X,
-                value1.Y < value2.Y ? value1.Y : value2.Y,
-                value1.Z < value2.Z ? value1.Z : value2.Z,
-                value1.W < value2.W ? value1.W : value2.W
+                double.IsNaN(x.X) ? y.X : double.IsNaN(y.X) ? x.X : Math.Abs(x.X) < Math.Abs(y.X) ? x.X : y.X,
+                double.IsNaN(x.Y) ? y.Y : double.IsNaN(y.Y) ? x.Y : Math.Abs(x.Y) < Math.Abs(y.Y) ? x.Y : y.Y,
+                double.IsNaN(x.Z) ? y.Z : double.IsNaN(y.Z) ? x.Z : Math.Abs(x.Z) < Math.Abs(y.Z) ? x.Z : y.Z,
+                double.IsNaN(x.W) ? y.W : double.IsNaN(y.W) ? x.W : Math.Abs(x.W) < Math.Abs(y.W) ? x.W : y.W
             );
+#endif
+        }
+
+#if NET9_0_OR_GREATER
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MinNative(Vector4D value1, Vector4D value2) => Vector256.MinNative(value1.AsVector256(), value2.AsVector256()).AsVector4D();
+
+#endif
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MinNumber(Vector4D x, Vector4D y)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MinNumber(x.AsVector256(), y.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(
+                double.IsNaN(x.X) ? y.X : double.IsNaN(y.X) ? x.X : Math.Min(x.X, y.X),
+                double.IsNaN(x.Y) ? y.Y : double.IsNaN(y.Y) ? x.Y : Math.Min(x.Y, y.Y),
+                double.IsNaN(x.Z) ? y.Z : double.IsNaN(y.Z) ? x.Z : Math.Min(x.Z, y.Z),
+                double.IsNaN(x.W) ? y.W : double.IsNaN(y.W) ? x.W : Math.Min(x.W, y.W)
+            );
+#endif
         }
 
         /// <summary>Returns a new vector whose values are the product of each pair of elements in two specified vectors.</summary>
@@ -450,22 +630,77 @@
             return left * right;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D MultiplyAddEstimate(Vector4D left, Vector4D right, Vector4D addend)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.MultiplyAddEstimate(left.AsVector256(), right.AsVector256(), addend.AsVector256()).AsVector4D();
+#else
+            return left * right + addend;
+#endif
+        }
+
         /// <summary>Negates a specified vector.</summary>
         /// <param name="value">The vector to negate.</param>
         /// <returns>The negated vector.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Negate(Vector4D value)
-        {
-            return -value;
-        }
+        public static Vector4D Negate(Vector4D value) => -value;
 
         /// <summary>Returns a vector with the same direction as the specified vector, but with a length of one.</summary>
         /// <param name="vector">The vector to normalize.</param>
         /// <returns>The normalized vector.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Normalize(Vector4D vector)
+        public static Vector4D Normalize(Vector4D vector) => vector / vector.Length();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D RadiansToDegrees(Vector4D radians)
         {
-            return vector / vector.Length();
+#if NET9_0_OR_GREATER
+            return Vector256.RadiansToDegrees(radians.AsVector256()).AsVector4D();
+#else
+            return radians * MathUtil.RadToDefFactor;
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Round(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Round(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Round(vector.X), Math.Round(vector.Y), Math.Round(vector.Z), Math.Round(vector.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Round(Vector4D vector, MidpointRounding mode)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Round(vector.AsVector256(), mode).AsVector4D();
+#else
+            return new(Math.Round(vector.X, mode), Math.Round(vector.Y, mode), Math.Round(vector.Z, mode), Math.Round(vector.W, mode));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Sin(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            return Vector256.Sin(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Sin(vector.X), Math.Sin(vector.Y), Math.Sin(vector.Z), Math.Sin(vector.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static (Vector4D Sin, Vector4D Cos) SinCos(Vector4D vector)
+        {
+#if NET9_0_OR_GREATER
+            (Vector256<double> sin, Vector256<double> cos) = Vector256.SinCos(vector.AsVector256());
+            return (sin.AsVector4D(), cos.AsVector4D());
+#else
+            return (Sin(vector), Cos(vector));
+#endif
         }
 
         /// <summary>Returns a vector whose elements are the square root of each of a specified vector's elements.</summary>
@@ -474,12 +709,11 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D SquareRoot(Vector4D value)
         {
-            return new Vector4D(
-                Math.Sqrt(value.X),
-                Math.Sqrt(value.Y),
-                Math.Sqrt(value.Z),
-                Math.Sqrt(value.W)
-            );
+#if NET7_0_OR_GREATER
+            return Vector256.Sqrt(value.AsVector256()).AsVector4D();
+#else
+            return new Vector4D(Math.Sqrt(value.X), Math.Sqrt(value.Y), Math.Sqrt(value.Z), Math.Sqrt(value.W));
+#endif
         }
 
         /// <summary>Subtracts the second vector from the first.</summary>
@@ -487,9 +721,15 @@
         /// <param name="right">The second vector.</param>
         /// <returns>The difference vector.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Subtract(Vector4D left, Vector4D right)
+        public static Vector4D Subtract(Vector4D left, Vector4D right) => left - right;
+
+        public static Vector4D Truncate(Vector4D vector)
         {
-            return left - right;
+#if NET9_0_OR_GREATER
+            return Vector256.Truncate(vector.AsVector256()).AsVector4D();
+#else
+            return new(Math.Truncate(vector.X), Math.Truncate(vector.Y), Math.Truncate(vector.Z), Math.Truncate(vector.W));
+#endif
         }
 
         /// <inheritdoc/>
@@ -519,8 +759,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly double Length()
         {
-            double lengthSquared = LengthSquared();
-            return Math.Sqrt(lengthSquared);
+            return Math.Sqrt(LengthSquared());
         }
 
         /// <summary>Returns the length of the vector squared.</summary>
@@ -532,7 +771,18 @@
         {
             return Dot(this, this);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Vector4D(Vector4 v) => new(v.X, v.Y, v.Z, v.W);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Vector4D(Point4 v) => new(v.X, v.Y, v.Z, v.W);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator Vector4D(UPoint4 v) => new(v.X, v.Y, v.Z, v.W);
+
 #if NET8_0_OR_GREATER
+
         /// <summary>Returns the string representation of the current instance using default formatting.</summary>
         /// <returns>The string representation of the current instance.</returns>
         /// <remarks>This method returns a string in which each element of the vector is formatted using the "G" (general) format string and the formatting conventions of the current thread culture. The "&lt;" and "&gt;" characters are used to begin and end the string, and the current culture's <see cref="NumberFormatInfo.NumberGroupSeparator" /> property followed by a space is used to separate each element.</remarks>
@@ -565,6 +815,7 @@
 
             return $"<{X.ToString(format, formatProvider)}{separator} {Y.ToString(format, formatProvider)}{separator} {Z.ToString(format, formatProvider)}{separator} {W.ToString(format, formatProvider)}>";
         }
+
 #endif
     }
 }

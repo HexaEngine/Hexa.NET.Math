@@ -1,15 +1,55 @@
 ﻿#if NET5_0_OR_GREATER
+
 namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Buffers;
     using System.Buffers.Binary;
+    using System.Diagnostics;
     using System.IO;
     using System.Numerics;
     using System.Text;
 
     internal static class StreamExtensions
     {
+#if !NET9_0_OR_GREATER
+
+        public static int ReadExactly(this Stream stream, Span<byte> buffer)
+        {
+            return ReadAtLeastCore(stream, buffer, buffer.Length, throwOnEndOfStream: true);
+        }
+
+        public static int ReadExactly(this Stream stream, byte[] buffer, int offset, int count)
+        {
+            return ReadAtLeastCore(stream, buffer.AsSpan(offset, count), count, throwOnEndOfStream: true);
+        }
+
+        private static int ReadAtLeastCore(Stream stream, Span<byte> buffer, int minimumBytes, bool throwOnEndOfStream)
+        {
+            Debug.Assert(minimumBytes <= buffer.Length);
+
+            int totalRead = 0;
+            while (totalRead < minimumBytes)
+            {
+                int read = stream.Read(buffer[totalRead..]);
+                if (read == 0)
+                {
+                    if (throwOnEndOfStream)
+                    {
+                        throw new EndOfStreamException();
+                    }
+
+                    return totalRead;
+                }
+
+                totalRead += read;
+            }
+
+            return totalRead;
+        }
+
+#endif
+
         public static int WriteString(this Span<byte> dest, string str, Encoder encoder)
         {
             BinaryPrimitives.WriteInt32LittleEndian(dest, encoder.GetByteCount(str, true));
@@ -65,7 +105,7 @@ namespace Hexa.NET.Mathematics
         public static string ReadString(this Stream stream, Encoding decoder, Endianness endianness)
         {
             Span<byte> buf = stackalloc byte[4];
-            stream.Read(buf);
+            stream.ReadExactly(buf);
             int len = 0;
             if (endianness == Endianness.LittleEndian)
             {
@@ -77,7 +117,7 @@ namespace Hexa.NET.Mathematics
             }
 
             Span<byte> src = len < 2048 ? stackalloc byte[len] : new byte[len];
-            stream.Read(src);
+            stream.ReadExactly(src);
 
             int charCount = decoder.GetCharCount(src);
             Span<char> chars = charCount < 2048 ? stackalloc char[charCount] : new char[charCount];
@@ -103,7 +143,7 @@ namespace Hexa.NET.Mathematics
         public static int ReadInt(this Stream stream, Endianness endianness)
         {
             Span<byte> buf = stackalloc byte[4];
-            stream.Read(buf);
+            stream.ReadExactly(buf);
             if (endianness == Endianness.LittleEndian)
             {
                 return BinaryPrimitives.ReadInt32LittleEndian(buf);
@@ -117,7 +157,7 @@ namespace Hexa.NET.Mathematics
         public static uint ReadUInt(this Stream stream, Endianness endianness)
         {
             Span<byte> buf = stackalloc byte[4];
-            stream.Read(buf);
+            stream.ReadExactly(buf);
             if (endianness == Endianness.LittleEndian)
             {
                 return BinaryPrimitives.ReadUInt32LittleEndian(buf);
@@ -176,7 +216,7 @@ namespace Hexa.NET.Mathematics
         public static long ReadInt64(this Stream stream, Endianness endianness)
         {
             Span<byte> buf = stackalloc byte[8];
-            stream.Read(buf);
+            stream.ReadExactly(buf);
             if (endianness == Endianness.LittleEndian)
             {
                 return BinaryPrimitives.ReadInt64LittleEndian(buf);
@@ -190,7 +230,7 @@ namespace Hexa.NET.Mathematics
         public static ulong ReadUInt64(this Stream stream, Endianness endianness)
         {
             Span<byte> buf = stackalloc byte[8];
-            stream.Read(buf);
+            stream.ReadExactly(buf);
             if (endianness == Endianness.LittleEndian)
             {
                 return BinaryPrimitives.ReadUInt64LittleEndian(buf);
@@ -204,7 +244,7 @@ namespace Hexa.NET.Mathematics
         public static byte[] Read(this Stream stream, long length)
         {
             var buffer = new byte[length];
-            stream.Read(buffer, 0, (int)length);
+            stream.ReadExactly(buffer, 0, (int)length);
             return buffer;
         }
 
@@ -214,7 +254,7 @@ namespace Hexa.NET.Mathematics
             bool pool = compare.Length > 2048;
             byte[] array = null;
             Span<byte> buffer = pool ? (Span<byte>)(array = ArrayPool<byte>.Shared.Rent(compare.Length)) : (stackalloc byte[compare.Length]);
-            stream.Read(buffer);
+            stream.ReadExactly(buffer);
             var result = buffer.SequenceEqual(compare);
             if (pool)
             {
@@ -253,7 +293,7 @@ namespace Hexa.NET.Mathematics
         public static byte[] ReadBytes(this Stream stream, int length)
         {
             byte[] bytes = new byte[length];
-            stream.Read(bytes, 0, length);
+            stream.ReadExactly(bytes, 0, length);
             return bytes;
         }
 
@@ -279,7 +319,7 @@ namespace Hexa.NET.Mathematics
         public static Vector3 ReadVector3(this Stream stream, Endianness endianness)
         {
             Span<byte> src = stackalloc byte[12];
-            stream.Read(src);
+            stream.ReadExactly(src);
             Vector3 vector;
             if (endianness == Endianness.LittleEndian)
             {
@@ -315,7 +355,7 @@ namespace Hexa.NET.Mathematics
         public static float ReadFloat(this Stream stream, Endianness endianness)
         {
             Span<byte> src = stackalloc byte[4];
-            stream.Read(src);
+            stream.ReadExactly(src);
             if (endianness == Endianness.LittleEndian)
             {
                 return ReadSingleLittleEndian(src);
@@ -483,4 +523,5 @@ namespace Hexa.NET.Mathematics
         }
     }
 }
+
 #endif

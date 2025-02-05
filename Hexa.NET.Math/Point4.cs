@@ -7,6 +7,12 @@
     using System.Numerics;
     using System.Runtime.CompilerServices;
 
+#if NET5_0_OR_GREATER
+
+    using System.Runtime.Intrinsics;
+
+#endif
+
     /// <summary>
     /// Represents a 4D signed integer point in space.
     /// </summary>
@@ -118,6 +124,20 @@
             W = w;
         }
 
+#if NET5_0_OR_GREATER
+
+        public static Point4 Create(int value) => Vector128.Create(value).AsPoint4();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Create(Point2 value, int z, int w) => value.AsVector128Unsafe().WithElement(2, z).WithElement(3, w).AsPoint4();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Create(Point3 value, int w) => value.AsVector128Unsafe().WithElement(3, w).AsPoint4();
+
+        public static Point4 Create(int x, int y, int z, int w) => Vector128.Create(x, y, z, w).AsPoint4();
+
+#endif
+
         /// <summary>
         /// Gets or sets the element at the specified index.
         /// </summary>
@@ -210,7 +230,11 @@
         /// <returns>The element-wise sum of the two <see cref="Point4"/> instances.</returns>
         public static Point4 operator +(Point4 left, Point4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() + right.AsVector128()).AsPoint4();
+#else
             return new Point4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+#endif
         }
 
         /// <summary>
@@ -221,7 +245,11 @@
         /// <returns>The element-wise difference between the left and right <see cref="Point4"/> instances.</returns>
         public static Point4 operator -(Point4 left, Point4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() - right.AsVector128()).AsPoint4();
+#else
             return new Point4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+#endif
         }
 
         /// <summary>
@@ -232,7 +260,11 @@
         /// <returns>The element-wise product of the two <see cref="Point4"/> instances.</returns>
         public static Point4 operator *(Point4 left, Point4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() * right.AsVector128()).AsPoint4();
+#else
             return new Point4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+#endif
         }
 
         /// <summary>
@@ -243,29 +275,11 @@
         /// <returns>The element-wise division of the left <see cref="Point4"/> by the right <see cref="Point4"/> instances.</returns>
         public static Point4 operator /(Point4 left, Point4 right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() / right.AsVector128()).AsPoint4();
+#else
             return new Point4(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
-        }
-
-        /// <summary>
-        /// Adds a constant value to each element of a <see cref="Point4"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="Point4"/> instance to add to.</param>
-        /// <param name="right">The constant value to add to each element.</param>
-        /// <returns>A new <see cref="Point4"/> instance with each element increased by the constant value.</returns>
-        public static Point4 operator +(Point4 left, int right)
-        {
-            return new Point4(left.X + right, left.Y + right, left.Z + right, left.W + right);
-        }
-
-        /// <summary>
-        /// Subtracts a constant value from each element of a <see cref="Point4"/> instance.
-        /// </summary>
-        /// <param name="left">The <see cref="Point4"/> instance to subtract from.</param>
-        /// <param name="right">The constant value to subtract from each element.</param>
-        /// <returns>A new <see cref="Point4"/> instance with each element decreased by the constant value.</returns>
-        public static Point4 operator -(Point4 left, int right)
-        {
-            return new Point4(left.X - right, left.Y - right, left.Z - right, left.W - right);
+#endif
         }
 
         /// <summary>
@@ -276,8 +290,14 @@
         /// <returns>A new <see cref="Point4"/> instance with each element multiplied by the constant value.</returns>
         public static Point4 operator *(Point4 left, int right)
         {
+#if NET7_0_OR_GREATER
+            return (left.AsVector128() * right).AsPoint4();
+#else
             return new Point4(left.X * right, left.Y * right, left.Z * right, left.W * right);
+#endif
         }
+
+        public static Point4 operator *(int left, Point4 right) => right * left;
 
         /// <summary>
         /// Divides each element of a <see cref="Point4"/> instance by a constant value.
@@ -287,42 +307,111 @@
         /// <returns>A new <see cref="Point4"/> instance with each element divided by the constant value.</returns>
         public static Point4 operator /(Point4 left, int right)
         {
+#if NET8_0_OR_GREATER
+            return (left.AsVector128() / right).AsPoint4();
+#else
             return new Point4(left.X / right, left.Y / right, left.Z / right, left.W / right);
+#endif
         }
 
-        /// <summary>
-        /// Increments all elements of a <see cref="Point4"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="Point4"/> instance to increment.</param>
-        /// <returns>The <see cref="Point4"/> instance with all elements incremented by 1.</returns>
-        public static Point4 operator ++(Point4 point)
+        /// <summary>Negates the specified vector.</summary>
+        /// <param name="value">The vector to negate.</param>
+        /// <returns>The negated vector.</returns>
+        /// <remarks>The <see cref="op_UnaryNegation" /> method defines the unary negation operation for <see cref="Point3" /> objects.</remarks>
+        public static Point4 operator -(Point4 value)
         {
-            return new Point4(point.X + 1, point.Y + 1, point.Z + 1, point.W + 1);
+#if NET7_0_OR_GREATER
+            return (-value.AsVector128()).AsPoint4();
+#else
+            return new Point4(-value.X, -value.Y, -value.Z, -value.W);
+#endif
         }
 
-        /// <summary>
-        /// Decrements all elements of a <see cref="Point4"/> instance by 1.
-        /// </summary>
-        /// <param name="point">The <see cref="Point4"/> instance to decrement.</param>
-        /// <returns>The <see cref="Point4"/> instance with all elements decremented by 1.</returns>
-        public static Point4 operator --(Point4 point)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Abs(Point4 value)
         {
-            return new Point4(point.X - 1, point.Y - 1, point.Z - 1, point.W - 1);
+#if NET7_0_OR_GREATER
+            return Vector128.Abs(value.AsVector128()).AsPoint4();
+#else
+            return new(Math.Abs(value.X), Math.Abs(value.Y), Math.Abs(value.Z), Math.Abs(value.W));
+#endif
         }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="Vector4"/> to a <see cref="Point4"/>.
-        /// </summary>
-        /// <param name="vector">The Vector4 to convert to a <see cref="Point4"/>.</param>
-        /// <returns>A <see cref="Point4"/> with each component rounded to the nearest unsigned integer value.</returns>
-        public static implicit operator Point4(Vector4 vector) => new() { X = (int)vector.X, Y = (int)vector.Y, Z = (int)vector.Z, W = (int)vector.W };
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Clamp(Point4 value1, Point4 min, Point4 max)
+        {
+#if NET9_0_OR_GREATER
+            return Vector128.Clamp(value1.AsVector128(), min.AsVector128(), max.AsVector128()).AsPoint4();
+#else
+            return new Point4(MathUtil.Clamp(value1.X, min.X, max.X), MathUtil.Clamp(value1.Y, min.Y, max.Y), MathUtil.Clamp(value1.Z, min.Z, max.Z), MathUtil.Clamp(value1.W, min.W, max.W));
+#endif
+        }
 
-        /// <summary>
-        /// Implicitly converts a <see cref="Point4"/> to a <see cref="Vector4"/>.
-        /// </summary>
-        /// <param name="point">The <see cref="Point4"/> to convert to a <see cref="Vector4"/>.</param>
-        /// <returns>A <see cref="Vector4"/> with each component equal to the respective <see cref="Point4"/> component as a float value.</returns>
-        public static implicit operator Vector4(Point4 point) => new() { X = point.X, Y = point.Y, Z = point.Z, W = point.W };
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 CopySign(Point4 value, Point4 sign)
+        {
+#if NET9_0_OR_GREATER
+            return Vector128.CopySign(value.AsVector128(), sign.AsVector128()).AsPoint4();
+#else
+            return new(MathUtil.CopySign(value.X, sign.X), MathUtil.CopySign(value.Y, sign.Y), MathUtil.CopySign(value.Z, sign.Z), MathUtil.CopySign(value.W, sign.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe int Dot(Point4 x, Point4 y)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Dot(x.AsVector128(), y.AsVector128());
+#else
+            return (x.X * y.X) + (x.Y * y.Y) + (x.Z * y.Z) + (x.W * y.W);
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly int LengthSquared()
+        {
+            return Dot(this, this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly float Length()
+        {
+            return MathF.Sqrt(LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float Distance(Point4 x, Point4 y)
+        {
+            return MathF.Sqrt((x - y).LengthSquared());
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Min(Point4 value1, Point4 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Min(value1.AsVector128(), value2.AsVector128()).AsPoint4();
+#else
+            return new(Math.Min(value1.X, value2.X), Math.Min(value1.Y, value2.Y), Math.Min(value1.Z, value2.Z), Math.Min(value1.W, value2.W));
+#endif
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Point4 Max(Point4 value1, Point4 value2)
+        {
+#if NET7_0_OR_GREATER
+            return Vector128.Max(value1.AsVector128(), value2.AsVector128()).AsPoint4();
+#else
+            return new(Math.Max(value1.X, value2.X), Math.Max(value1.Y, value2.Y), Math.Max(value1.Z, value2.Z), Math.Max(value1.W, value2.W));
+#endif
+        }
+
+        public static explicit operator Point4(Vector4 value) => new((int)value.X, (int)value.Y, (int)value.Z, (int)value.W);
+
+        public static implicit operator Point4(Vector4D value) => new((int)value.X, (int)value.Y, (int)value.Z, (int)value.W);
+
+        public static explicit operator Point4(UPoint4 value) => new((int)value.X, (int)value.Y, (int)value.Z, (int)value.W);
+
+        public static implicit operator Vector4(Point4 value) => new(value.X, value.Y, value.Z, value.W);
 
 #if NET8_0_OR_GREATER
 
@@ -358,9 +447,11 @@
 
             return $"<{X.ToString(format, formatProvider)}{separator} {Y.ToString(format, formatProvider)}{separator} {Z.ToString(format, formatProvider)}{separator} {W.ToString(format, formatProvider)}>";
         }
+
 #endif
 
 #if NET5_0_OR_GREATER
+
         /// <summary>
         /// Reads a <see cref="Point4"/> from a <see cref="Stream"/>.
         /// </summary>
@@ -370,7 +461,7 @@
         public static Point4 Read(Stream stream, Endianness endianness)
         {
             Span<byte> src = stackalloc byte[16];
-            stream.Read(src);
+            stream.ReadExactly(src);
             Point4 point;
             if (endianness == Endianness.LittleEndian)
             {
@@ -414,6 +505,7 @@
 
             stream.Write(dst);
         }
+
 #endif
     }
 }
