@@ -1,4 +1,9 @@
-﻿namespace Hexa.NET.Mathematics
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+// Converted to double by Juna Meinhold (c) 2025, MIT license.
+
+namespace Hexa.NET.Mathematics
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
@@ -124,15 +129,29 @@
 
 #if NET5_0_OR_GREATER
 
-        public static Vector4D Create(double value) => Vector256.Create(value).AsVector4D();
+        internal static Vector4D Create(double value) => Vector256.Create(value).AsVector4D();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Create(Vector2D value, double z, double w) => value.AsVector256Unsafe().WithElement(2, z).WithElement(3, w).AsVector4D();
+        internal static Vector4D Create(Vector2D value, double z, double w) => value.AsVector256Unsafe().WithElement(2, z).WithElement(3, w).AsVector4D();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector4D Create(Vector3D value, double w) => value.AsVector256Unsafe().WithElement(3, w).AsVector4D();
+        internal static Vector4D Create(Vector3D value, double w) => value.AsVector256Unsafe().WithElement(3, w).AsVector4D();
 
-        public static Vector4D Create(double x, double y, double z, double w) => Vector256.Create(x, y, z, w).AsVector4D();
+        internal static Vector4D Create(double x, double y, double z, double w) => Vector256.Create(x, y, z, w).AsVector4D();
+
+#else
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Create(double value) => new(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Create(Vector2D value, double z, double w) => new(value, z, w);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Create(Vector3D value, double w) => new(value, w);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Create(double x, double y, double z, double w) => new(x, y, z, w);
 
 #endif
 
@@ -160,7 +179,8 @@
                 if (index < 0 || index >= Count)
                 {
                     throw new IndexOutOfRangeException($"Index must be smaller than {Count} and larger or equals to 0");
-                } ((double*)Unsafe.AsPointer(ref this))[index] = value;
+                } 
+                ((double*)Unsafe.AsPointer(ref this))[index] = value;
             }
         }
 
@@ -723,6 +743,89 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Subtract(Vector4D left, Vector4D right) => left - right;
 
+        /// <summary>Transforms a two-dimensional vector by a specified 4x4 matrix.</summary>
+        /// <param name="position">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector4D Transform(Vector2D position, Matrix4x4D matrix) => Transform(position, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Transform(Vector2D position, in Matrix4x4D.Impl matrix)
+        {
+            // This implementation is based on the DirectX Math Library XMVector2Transform method
+            // https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathVector.inl
+
+            Vector4D result = matrix.X * position.X;
+            result = MultiplyAddEstimate(matrix.Y, Create(position.Y), result);
+            return result + matrix.W;
+        }
+
+        /// <summary>Transforms a two-dimensional vector by the specified Quaternion rotation value.</summary>
+        /// <param name="value">The vector to rotate.</param>
+        /// <param name="rotation">The rotation to apply.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Transform(Vector2D value, QuaternionD rotation) => Transform(Create(value, 0.0f, 1.0f), rotation);
+
+        /// <summary>Transforms a three-dimensional vector by a specified 4x4 matrix.</summary>
+        /// <param name="position">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector4D Transform(Vector3D position, Matrix4x4D matrix) => Transform(position, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Transform(Vector3D position, in Matrix4x4D.Impl matrix)
+        {
+            // This implementation is based on the DirectX Math Library XMVector3Transform method
+            // https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathVector.inl
+
+            Vector4D result = matrix.X * position.X;
+            result = MultiplyAddEstimate(matrix.Y, Create(position.Y), result);
+            result = MultiplyAddEstimate(matrix.Z, Create(position.Z), result);
+            return result + matrix.W;
+        }
+
+        /// <summary>Transforms a three-dimensional vector by the specified Quaternion rotation value.</summary>
+        /// <param name="value">The vector to rotate.</param>
+        /// <param name="rotation">The rotation to apply.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Transform(Vector3D value, QuaternionD rotation) => Transform(Create(value, 1.0f), rotation);
+
+        /// <summary>Transforms a four-dimensional vector by a specified 4x4 matrix.</summary>
+        /// <param name="vector">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector4D Transform(Vector4D vector, Matrix4x4D matrix) => Transform(vector, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector4D Transform(Vector4D vector, in Matrix4x4D.Impl matrix)
+        {
+            // This implementation is based on the DirectX Math Library XMVector4Transform method
+            // https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathVector.inl
+
+            Vector4D result = matrix.X * vector.X;
+            result = MultiplyAddEstimate(matrix.Y, Create(vector.Y), result);
+            result = MultiplyAddEstimate(matrix.Z, Create(vector.Z), result);
+            result = MultiplyAddEstimate(matrix.W, Create(vector.W), result);
+            return result;
+        }
+
+        /// <summary>Transforms a four-dimensional vector by the specified Quaternion rotation value.</summary>
+        /// <param name="value">The vector to rotate.</param>
+        /// <param name="rotation">The rotation to apply.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D Transform(Vector4D value, QuaternionD rotation)
+        {
+            // This implementation is based on the DirectX Math Library XMVector3Rotate method
+            // https://github.com/microsoft/DirectXMath/blob/master/Inc/DirectXMathVector.inl
+
+            QuaternionD conjuagate = QuaternionD.Conjugate(rotation);
+            QuaternionD temp = QuaternionD.Concatenate(conjuagate, value.AsQuaternionD());
+            return QuaternionD.Concatenate(temp, rotation).AsVector4D();
+        }
+
         public static Vector4D Truncate(Vector4D vector)
         {
 #if NET9_0_OR_GREATER
@@ -771,6 +874,8 @@
         {
             return Dot(this, this);
         }
+
+ 
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Vector4D(Vector4 v) => new(v.X, v.Y, v.Z, v.W);

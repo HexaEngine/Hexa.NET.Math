@@ -1,4 +1,9 @@
-﻿namespace Hexa.NET.Mathematics
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+// Converted to double by Juna Meinhold (c) 2025, MIT license.
+
+namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -97,12 +102,21 @@
 
 #if NET5_0_OR_GREATER
 
-        public static Vector3D Create(double value) => Vector256.Create(value).AsVector3D();
+        internal static Vector3D Create(double value) => Vector256.Create(value).AsVector3D();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3D Create(Vector2D value, double z) => value.AsVector256Unsafe().WithElement(2, z).AsVector3D();
+        internal static Vector3D Create(Vector2D value, double z) => value.AsVector256Unsafe().WithElement(2, z).AsVector3D();
 
-        public static Vector3D Create(double x, double y, double z) => Vector256.Create(x, y, z, 0).AsVector3D();
+        internal static Vector3D Create(double x, double y, double z) => Vector256.Create(x, y, z, 0).AsVector3D();
+
+#else
+
+        internal static Vector3D Create(double value) => new(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector3D Create(Vector2D value, double z) => new(value, z);
+
+        internal static Vector3D Create(double x, double y, double z) => new(x, y, z);
 
 #endif
 
@@ -718,6 +732,38 @@
         /// <returns>The difference vector.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D Subtract(Vector3D left, Vector3D right) => left - right;
+
+        /// <summary>Transforms a vector by a specified 4x4 matrix.</summary>
+        /// <param name="position">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3D Transform(Vector3D position, Matrix4x4D matrix) => Vector4D.Transform(position, in matrix.AsImpl()).AsVector3D();
+
+        /// <summary>Transforms a vector by the specified Quaternion rotation value.</summary>
+        /// <param name="value">The vector to rotate.</param>
+        /// <param name="rotation">The rotation to apply.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3D Transform(Vector3D value, Quaternion rotation) => Vector4D.Transform(value, rotation).AsVector3D();
+
+        /// <summary>Transforms a vector normal by the given 4x4 matrix.</summary>
+        /// <param name="normal">The source vector.</param>
+        /// <param name="matrix">The matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3D TransformNormal(Vector3D normal, Matrix4x4D matrix) => TransformNormal(normal, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector3D TransformNormal(Vector3D normal, in Matrix4x4D.Impl matrix)
+        {
+            Vector4D result = matrix.X * normal.X;
+
+            result = Vector4D.MultiplyAddEstimate(matrix.Y, Vector4D.Create(normal.Y), result);
+            result = Vector4D.MultiplyAddEstimate(matrix.Z, Vector4D.Create(normal.Z), result);
+
+            return result.AsVector3D();
+        }
 
         public static Vector3D Truncate(Vector3D vector)
         {

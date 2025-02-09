@@ -11,16 +11,16 @@
     public struct BoundingBox : IEquatable<BoundingBox>, IFormattable
     {
         private static readonly Vector3[] g_BoxOffset =
-[
-    new Vector3(-1.0f, -1.0f, 1.0f),
-    new Vector3(1.0f, -1.0f, 1.0f),
-    new Vector3(1.0f, 1.0f, 1.0f),
-    new Vector3(-1.0f, 1.0f, 1.0f),
-    new Vector3(-1.0f, -1.0f, -1.0f),
-    new Vector3(1.0f, -1.0f, -1.0f),
-    new Vector3(1.0f, 1.0f, -1.0f),
-    new Vector3(-1.0f, 1.0f, -1.0f),
-];
+        [
+            new Vector3(-1.0f, -1.0f, 1.0f),
+            new Vector3(1.0f, -1.0f, 1.0f),
+            new Vector3(1.0f, 1.0f, 1.0f),
+            new Vector3(-1.0f, 1.0f, 1.0f),
+            new Vector3(-1.0f, -1.0f, -1.0f),
+            new Vector3(1.0f, -1.0f, -1.0f),
+            new Vector3(1.0f, 1.0f, -1.0f),
+            new Vector3(-1.0f, 1.0f, -1.0f),
+        ];
 
         /// <summary>
         /// Specifies the total number of corners (8) in the BoundingBox.

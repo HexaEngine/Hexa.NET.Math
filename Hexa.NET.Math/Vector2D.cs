@@ -1,4 +1,9 @@
-﻿namespace Hexa.NET.Mathematics
+﻿// Licensed to the .NET Foundation under one or more agreements.
+// The .NET Foundation licenses this file to you under the MIT license.
+
+// Converted to double by Juna Meinhold (c) 2025, MIT license.
+
+namespace Hexa.NET.Mathematics
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -74,9 +79,16 @@
 
 #if NET5_0_OR_GREATER
 
-        public static Vector2D Create(double value) => Vector256.Create(value).AsVector2D();
+        internal static Vector2D Create(double value) => Vector256.Create(value).AsVector2D();
 
-        public static Vector2D Create(double x, double y) => Vector256.Create(x, y, 0, 0).AsVector2D();
+        internal static Vector2D Create(double x, double y) => Vector256.Create(x, y, 0, 0).AsVector2D();
+#else
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector2D Create(double value) => new(value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector2D Create(double x, double y) => new(x, y);
 
 #endif
 
@@ -658,6 +670,62 @@
         /// <returns>The difference vector.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2D Subtract(Vector2D left, Vector2D right) => left - right;
+        /*
+        /// <summary>Transforms a vector by a specified 3x2 matrix.</summary>
+        /// <param name="position">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector2D Transform(Vector2D position, Matrix3x2D matrix) => Transform(position, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector2D Transform(Vector2D position, in Matrix3x2D.Impl matrix)
+        {
+            Vector2D result = matrix.X * position.X;
+            result = MultiplyAddEstimate(matrix.Y, Create(position.Y), result);
+            return result + matrix.Z;
+        }
+        */
+        /// <summary>Transforms a vector by a specified 4x4 matrix.</summary>
+        /// <param name="position">The vector to transform.</param>
+        /// <param name="matrix">The transformation matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2D Transform(Vector2D position, Matrix4x4D matrix) => Vector4D.Transform(position, in matrix.AsImpl()).AsVector2D();
+
+        /// <summary>Transforms a vector by the specified Quaternion rotation value.</summary>
+        /// <param name="value">The vector to rotate.</param>
+        /// <param name="rotation">The rotation to apply.</param>
+        /// <returns>The transformed vector.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2D Transform(Vector2D value, Quaternion rotation) => Vector4D.Transform(value, rotation).AsVector2D();
+        /*
+        /// <summary>Transforms a vector normal by the given 3x2 matrix.</summary>
+        /// <param name="normal">The source vector.</param>
+        /// <param name="matrix">The matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector2D TransformNormal(Vector2D normal, Matrix3x2D matrix) => TransformNormal(normal, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector2D TransformNormal(Vector2D normal, in Matrix3x2D.Impl matrix)
+        {
+            Vector2D result = matrix.X * normal.X;
+            result = MultiplyAddEstimate(matrix.Y, Create(normal.Y), result);
+            return result;
+        }
+        */
+        /// <summary>Transforms a vector normal by the given 4x4 matrix.</summary>
+        /// <param name="normal">The source vector.</param>
+        /// <param name="matrix">The matrix.</param>
+        /// <returns>The transformed vector.</returns>
+        public static Vector2D TransformNormal(Vector2D normal, Matrix4x4D matrix) => TransformNormal(normal, in matrix.AsImpl());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static Vector2D TransformNormal(Vector2D normal, in Matrix4x4D.Impl matrix)
+        {
+            Vector4D result = matrix.X * normal.X;
+            result = Vector4D.MultiplyAddEstimate(matrix.Y, Vector4D.Create(normal.Y), result);
+            return result.AsVector2D();
+        }
 
         public static Vector2D Truncate(Vector2D vector)
         {

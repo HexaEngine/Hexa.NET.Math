@@ -11,35 +11,102 @@
 
     public static unsafe class VectorExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2 Normalize(this Vector2 v)
         {
             return MathUtil.Normalize(v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3 Normalize(this Vector3 v)
         {
             return MathUtil.Normalize(v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4 Normalize(this Vector4 v)
         {
             return MathUtil.Normalize(v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector2D Normalize(this Vector2D v)
         {
             return MathUtil.Normalize(v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3D Normalize(this Vector3D v)
         {
             return MathUtil.Normalize(v);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector4D Normalize(this Vector4D v)
         {
             return MathUtil.Normalize(v);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static QuaternionD AsQuaternionD(this Vector4D value)
+        {
+            return *(QuaternionD*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D AsVector4D(this QuaternionD value)
+        {
+            return *(Vector4D*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PlaneD AsPlaneD(this Vector4D value)
+        {
+            return *(PlaneD*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D AsVector4D(this PlaneD value)
+        {
+            return *(Vector4D*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3D AsVector3D(this Vector2D value)
+        {
+            return Vector3D.Create(value, 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D AsVector4D(this Vector2D value)
+        {
+            return Vector4D.Create(value, 0, 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2D AsVector2D(this Vector3D value)
+        {
+            return *(Vector2D*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector4D AsVector4D(this Vector3D value)
+        {
+            return Vector4D.Create(value, 0);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector2D AsVector2D(this Vector4D value)
+        {
+            return *(Vector2D*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector3D AsVector3D(this Vector4D value)
+        {
+            return *(Vector3D*)&value;
+        }
+
 
 #if NET5_0_OR_GREATER
 
@@ -185,6 +252,31 @@
         public static UPoint4 AsUPoint4(this Vector128<uint> value)
         {
             return *(UPoint4*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector256<double> AsVector256(this QuaternionD value)
+        {
+            return *(Vector256<double>*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static QuaternionD AsQuaternionD(this Vector256<double> value)
+        {
+            return *(QuaternionD*)&value;
+        }
+
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vector256<double> AsVector256(this PlaneD value)
+        {
+            return *(Vector256<double>*)&value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static PlaneD AsPlaneD(this Vector256<double> value)
+        {
+            return *(PlaneD*)&value;
         }
 
 #endif
