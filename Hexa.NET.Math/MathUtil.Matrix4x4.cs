@@ -7,14 +7,14 @@
     public static unsafe partial class MathUtil
     {
         /// <summary>
-        /// Creates a rotation matrix from yaw, pitch, and roll angles.
+        /// Creates a rotation matrix from pitch, yaw, and roll angles.
         /// </summary>
-        /// <param name="yaw">The yaw angle (in radians).</param>
         /// <param name="pitch">The pitch angle (in radians).</param>
+        /// <param name="yaw">The yaw angle (in radians).</param>
         /// <param name="roll">The roll angle (in radians).</param>
         /// <returns>The rotation matrix.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4x4 RotationYawPitchRoll(float yaw, float pitch, float roll)
+        public static Matrix4x4 RotationPitchYawRoll(float pitch, float yaw, float roll)
         {
             Quaternion quaternion = Quaternion.CreateFromYawPitchRoll(yaw, pitch, roll);
             return RotationQuaternion(quaternion);
@@ -30,7 +30,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4 CreateTransform(Vector3 pos, Vector3 rotation, Vector3 scale)
         {
-            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z) * Matrix4x4.CreateTranslation(pos);
+            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix4x4.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -43,7 +43,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4 CreateTransform(Vector3 pos, Vector3 rotation, float scale)
         {
-            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z) * Matrix4x4.CreateTranslation(pos);
+            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix4x4.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4 CreateTransform(Vector3 pos, float scale)
         {
-            return Matrix4x4.CreateTranslation(pos) * Matrix4x4.CreateScale(scale);
+            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4 CreateTransform(Vector3 pos, Vector3 scale)
         {
-            return Matrix4x4.CreateTranslation(pos) * Matrix4x4.CreateScale(scale);
+            return Matrix4x4.CreateScale(scale) * Matrix4x4.CreateTranslation(pos);
         }
 
         /// <summary>

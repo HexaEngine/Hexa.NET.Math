@@ -17,7 +17,7 @@
 
         private readonly Plane[] _planes;
         private readonly Vector3[] _corners;
-        private Vector3 _center;
+        private Vector3 center;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BoundingFrustum"/> struct.
@@ -56,12 +56,12 @@
                 IntersectionPoint(_planes[1], _planes[2], _planes[5]),
             ];
 
-            Vector3 center = new(0, 0, 0);
+            center = Vector3.Zero;
             for (int i = 0; i < _corners.Length; i++)
             {
                 center += new Vector3(_corners[i].X, _corners[i].Y, _corners[i].Z);
             }
-            _center /= _corners.Length;
+            center /= _corners.Length;
         }
 
         /// <summary>
@@ -77,7 +77,7 @@
         /// <summary>
         /// Gets the center of the bounding frustum.
         /// </summary>
-        public readonly Vector3 Center => _center;
+        public readonly Vector3 Center => center;
 
         /// <summary>
         /// Initializes the bounding frustum from a view-projection matrix.
@@ -101,12 +101,12 @@
             _corners[6] = IntersectionPoint(_planes[1], _planes[3], _planes[5]);
             _corners[7] = IntersectionPoint(_planes[1], _planes[2], _planes[5]);
 
-            Vector3 center = new(0, 0, 0);
+            center = Vector3.Zero;
             for (int i = 0; i < _corners.Length; i++)
             {
                 center += new Vector3(_corners[i].X, _corners[i].Y, _corners[i].Z);
             }
-            _center /= _corners.Length;
+            center /= _corners.Length;
         }
 
         /// <summary>

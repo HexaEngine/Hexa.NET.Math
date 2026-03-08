@@ -946,7 +946,7 @@ namespace Hexa.NET.Mathematics
             local = matrix;
             Matrix4x4.Invert(local, out localInverse);
             Matrix4x4.Decompose(local, out scale, out orientation, out position);
-            rotation = orientation.ToYawPitchRoll().ToDeg();
+            rotation = orientation.ToPitchYawRoll().ToDeg();
             OnChanged();
         }
 
@@ -1100,7 +1100,7 @@ namespace Hexa.NET.Mathematics
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Quaternion MaskRotation(Quaternion rotation, out Vector3 euler)
         {
-            euler = rotation.ToYawPitchRoll();
+            euler = rotation.ToPitchYawRoll();
             euler = MaskRotation(euler);
             rotation = euler.ToQuaternion();
             return rotation;
@@ -1172,7 +1172,7 @@ namespace Hexa.NET.Mathematics
             }
 
             orientation = value;
-            rotation = value.ToYawPitchRoll().ToDeg().NormalizeEulerAngleDegrees();
+            rotation = value.ToPitchYawRoll().ToDeg().NormalizeEulerAngleDegrees();
             OnChanged();
         }
 
@@ -1244,7 +1244,7 @@ namespace Hexa.NET.Mathematics
                 orientation = value / parent.globalOrientation;
             }
 
-            rotation = value.ToYawPitchRoll().ToDeg().NormalizeEulerAngleDegrees();
+            rotation = value.ToPitchYawRoll().ToDeg().NormalizeEulerAngleDegrees();
 
             OnChanged();
         }
@@ -1289,7 +1289,7 @@ namespace Hexa.NET.Mathematics
             oldpos = position;
             (position, orientation) = (value.position, value.rotation);
             velocity = position - oldpos;
-            rotation = value.rotation.ToYawPitchRoll().ToDeg().NormalizeEulerAngleDegrees();
+            rotation = value.rotation.ToPitchYawRoll().ToDeg().NormalizeEulerAngleDegrees();
             OnChanged();
         }
 
@@ -1308,7 +1308,7 @@ namespace Hexa.NET.Mathematics
             oldpos = position;
             (position, orientation, scale) = (value.position, value.rotation, value.scale);
             velocity = position - oldpos;
-            rotation = value.rotation.ToYawPitchRoll().ToDeg().NormalizeEulerAngleDegrees();
+            rotation = value.rotation.ToPitchYawRoll().ToDeg().NormalizeEulerAngleDegrees();
             OnChanged();
         }
     }

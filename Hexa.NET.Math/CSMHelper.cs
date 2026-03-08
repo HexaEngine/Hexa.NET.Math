@@ -329,7 +329,7 @@ namespace Hexa.NET.Mathematics
                 {
                     ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, near, cascades[i]), light, ref frustra[i], config);
                 }
-                else if (i < config.CascadeCount)
+                else if (i < config.CascadeCount - 1)
                 {
                     ret[i] = GetLightSpaceMatrix(view * MathUtil.PerspectiveFovLH(fov, aspect, cascades[i - 1], cascades[i]), light, ref frustra[i], config);
                 }

@@ -6,16 +6,16 @@
     public static unsafe partial class MathUtil
     {
         /// <summary>
-        /// Creates a rotation matrix from yaw, pitch, and roll angles.
+        /// Creates a rotation matrix from pitch, yaw, and roll angles.
         /// </summary>
-        /// <param name="yaw">The yaw angle (in radians).</param>
         /// <param name="pitch">The pitch angle (in radians).</param>
+        /// <param name="yaw">The yaw angle (in radians).</param>
         /// <param name="roll">The roll angle (in radians).</param>
         /// <returns>The rotation matrix.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Matrix4x4D RotationYawPitchRoll(double yaw, double pitch, double roll)
+        public static Matrix4x4D RotationYawPitchRoll(double pitch, double yaw, double roll)
         {
-            QuaternionD quaternion = QuaternionD.CreateFromYawPitchRoll(yaw, pitch, roll);
+            QuaternionD quaternion = QuaternionD.CreateFromYawPitchRoll(pitch, yaw, roll);
             return RotationQuaternion(quaternion);
         }
 
@@ -29,7 +29,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4D CreateTransform(Vector3D pos, Vector3D rotation, Vector3D scale)
         {
-            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z) * Matrix4x4D.CreateTranslation(pos);
+            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix4x4D.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4D CreateTransform(Vector3D pos, Vector3D rotation, double scale)
         {
-            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateFromYawPitchRoll(rotation.X, rotation.Y, rotation.Z) * Matrix4x4D.CreateTranslation(pos);
+            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateFromYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix4x4D.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4D CreateTransform(Vector3D pos, double scale)
         {
-            return Matrix4x4D.CreateTranslation(pos) * Matrix4x4D.CreateScale(scale);
+            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateTranslation(pos);
         }
 
         /// <summary>
@@ -92,7 +92,7 @@
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Matrix4x4D CreateTransform(Vector3D pos, Vector3D scale)
         {
-            return Matrix4x4D.CreateTranslation(pos) * Matrix4x4D.CreateScale(scale);
+            return Matrix4x4D.CreateScale(scale) * Matrix4x4D.CreateTranslation(pos);
         }
 
         /// <summary>

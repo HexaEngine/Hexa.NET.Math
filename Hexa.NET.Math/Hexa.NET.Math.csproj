@@ -16,7 +16,7 @@
 
 		<PackageId>Hexa.NET.Math</PackageId>
 		<AssemblyName>Hexa.NET.Math</AssemblyName>
-		<AssemblyVersion>1.0.2</AssemblyVersion>
+		<AssemblyVersion>2.0.8</AssemblyVersion>
 		<Description>The Math library for HexaEngine.</Description>
 		<PackageTags>HexaEngine Math C# .NET DotNet Sharp Windows macOS</PackageTags>
 		<Authors>Juna</Authors>
@@ -35,11 +35,11 @@
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' != 'Minimal'">
-		<PackageVersion>2.0.7</PackageVersion>
+		<PackageVersion>2.0.8</PackageVersion>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)' == 'Minimal'">
-		<PackageVersion>2.0.7-minimal</PackageVersion>
+		<PackageVersion>2.0.8-minimal</PackageVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -93,14 +93,14 @@
         }
 
         /// <summary>
-        /// Calculates yaw, pitch, and roll angles from a <see cref="Quaternion"/> and stores them in the provided out parameters.
+        /// Calculates pitch, yaw, and roll angles from a <see cref="Quaternion"/> and stores them in the provided out parameters.
         /// </summary>
         /// <param name="r">The input <see cref="Quaternion"/>.</param>
         /// <param name="yaw">The calculated yaw angle (in radians).</param>
         /// <param name="pitch">The calculated pitch angle (in radians).</param>
         /// <param name="roll">The calculated roll angle (in radians).</param>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void GetYawPitchRoll(this Quaternion r, out float yaw, out float pitch, out float roll)
+        public static void GetPitchYawRoll(this Quaternion r, out float pitch, out float yaw, out float roll)
         {
 #if NET5_0_OR_GREATER
             yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
@@ -114,12 +114,12 @@
         }
 
         /// <summary>
-        /// Calculates yaw, pitch, and roll angles from a <see cref="Quaternion"/> and returns them as a <see cref="Vector3"/>.
+        /// Calculates pitch, yaw, and roll angles from a <see cref="Quaternion"/> and returns them as a <see cref="Vector3"/>.
         /// </summary>
         /// <param name="r">The input <see cref="Quaternion"/>.</param>
-        /// <returns>A <see cref="Vector3"/> containing yaw, pitch, and roll angles (in radians).</returns>
+        /// <returns>A <see cref="Vector3"/> containing pitch, yaw, and roll angles (in radians).</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Vector3 ToYawPitchRoll(this Quaternion r)
+        public static Vector3 ToPitchYawRoll(this Quaternion r)
         {
 #if NET5_0_OR_GREATER
             float yaw = MathF.Atan2(2.0f * (r.Y * r.W + r.X * r.Z), 1.0f - 2.0f * (r.X * r.X + r.Y * r.Y));
@@ -130,7 +130,7 @@
             float pitch = MathF.Asin(Clamp(2.0f * (r.X * r.W - r.Y * r.Z), -1, 1));
             float roll = MathF.Atan2(2.0f * (r.X * r.Y + r.Z * r.W), 1.0f - 2.0f * (r.X * r.X + r.Z * r.Z));
 #endif
-            return new Vector3(yaw, pitch, roll);
+            return new Vector3(pitch, yaw, roll);
         }
 
         /// <summary>
@@ -178,17 +178,15 @@
         }
 
         /// <summary>
-        /// Converts a <see cref="Vector3"/> representing yaw, pitch, and roll angles to a quaternion.
+        /// Converts a <see cref="Vector3"/> representing pitch, yaw, and roll angles to a quaternion.
         /// </summary>
-        /// <param name="vector">The input <see cref="Vector3"/> with yaw, pitch, and roll angles.</param>
+        /// <param name="vector">The input <see cref="Vector3"/> with pitch, yaw, and roll angles.</param>
         /// <returns>The corresponding <see cref="Quaternion"/> representing the rotation.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Quaternion ToQuaternion(this Vector3 vector)
         {
-            return Quaternion.CreateFromYawPitchRoll(vector.X, vector.Y, vector.Z);
+            return Quaternion.CreateFromYawPitchRoll(vector.Y, vector.X, vector.Z);
         }
-
-
 
         /// <summary>
         /// Normalizes Euler angles to the [0, 360] degree range.
@@ -522,7 +520,7 @@
                     vec = Vector4.Zero;
                 }
 
-                return new(vec.X, vec.Y, vec.Z, vec.Z);
+                return new(vec.X, vec.Y, vec.Z, vec.W);
             }
         }
 
@@ -813,7 +811,7 @@
                     vec = Vector4D.Zero;
                 }
 
-                return new(vec.X, vec.Y, vec.Z, vec.Z);
+                return new(vec.X, vec.Y, vec.Z, vec.W);
             }
         }
 
@@ -916,7 +914,7 @@
                 return vResult.ToScalar();
             }
 #endif
-            return vector.LengthSquared();
+            return vector.Length();
         }
 
         /// <summary>
@@ -937,7 +935,7 @@
                 return vResult.ToScalar();
             }
 #endif
-            return vector.LengthSquared();
+            return vector.Length();
         }
 
         /// <summary>
@@ -981,7 +979,7 @@
                 return vResult.ToScalar();
             }
 #endif
-            return vector.LengthSquared();
+            return vector.Length();
         }
 
         /// <summary>
@@ -1003,7 +1001,7 @@
                 return vResult.ToScalar();
             }
 #endif
-            return vector.LengthSquared();
+            return vector.Length();
         }
 
         /// <summary>
