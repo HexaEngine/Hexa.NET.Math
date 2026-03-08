@@ -1,55 +1,19 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.Intrinsics.X86;
-using System.Runtime.Intrinsics;
+﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
 using Hexa.NET.Mathematics;
-using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
-internal class Program
+public class Program
 {
     private static void Main(string[] args)
     {
-        var A = new Matrix4x4D(
-           1.0, 2.0, 3.0, 4.0,
-           5.0, 6.0, 7.0, 8.0,
-           9.0, 10.0, 11.0, 12.0,
-           13.0, 14.0, 15.0, 16.0);
-
-        var B = new Matrix4x4D(
-            16.0, 15.0, 14.0, 13.0,
-            12.0, 11.0, 10.0, 9.0,
-            8.0, 7.0, 6.0, 5.0,
-            4.0, 3.0, 2.0, 1.0);
-
-        var expected = new Matrix4x4D(
-            80.0, 70.0, 60.0, 50.0,
-            240.0, 214.0, 188.0, 162.0,
-            400.0, 358.0, 316.0, 274.0,
-            560.0, 502.0, 444.0, 386.0);
-
-
-        var result = Multiply(A, B);
-
-        var result1 = Mult(A, B);
-
-        var result2 = SoftwareMultiply(A, B);
-
-        if (result == expected)
-        {
-
-        }
-
-        
-
-        var aT = Transpose(A);
-        var aT2 = TransposeSoftware(A);
-
-        if (aT == aT2)
-        {
-
-        }
+        var color = Color.FromHex("#CCC");
+        Console.WriteLine(color);
     }
 
-    public unsafe static Matrix4x4D Transpose(Matrix4x4D matrix)
+    public static unsafe Matrix4x4D Transpose(Matrix4x4D matrix)
     {
         Vector256<double> row1 = Avx.LoadVector256(&matrix.M11);
         Vector256<double> row2 = Avx.LoadVector256(&matrix.M21);
@@ -97,7 +61,7 @@ internal class Program
         return result;
     }
 
-    public unsafe static Matrix4x4D Multiply(Matrix4x4D value1, Matrix4x4D value2) 
+    public static unsafe Matrix4x4D Multiply(Matrix4x4D value1, Matrix4x4D value2)
     {
         Vector256<double> row1 = Avx.LoadVector256(&value2.M11);
         Vector256<double> row2 = Avx.LoadVector256(&value2.M21);
@@ -137,9 +101,9 @@ internal class Program
         Avx.Store(&value1.M41, r4);
 
         return value1;
-    } 
+    }
 
-    public unsafe static Matrix4x4D Mult(Matrix4x4D value1, Matrix4x4D value2)
+    public static unsafe Matrix4x4D Mult(Matrix4x4D value1, Matrix4x4D value2)
     {
         // Process the first row
         Vector256<double> M11 = Avx.LoadVector256(&value1.M11);

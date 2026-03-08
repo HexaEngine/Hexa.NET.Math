@@ -9,11 +9,14 @@ namespace Hexa.NET.Mathematics
     using System.Runtime.CompilerServices;
 
 #if NET5_0_OR_GREATER
+
     using System.Runtime.Intrinsics.Arm;
     using System.Runtime.Intrinsics.X86;
     using System.Runtime.Intrinsics;
     using System.Diagnostics.CodeAnalysis;
     using System.Numerics;
+    using System.Diagnostics;
+
 #endif
 
     public unsafe partial struct Matrix4x4D
@@ -21,12 +24,14 @@ namespace Hexa.NET.Mathematics
         internal const uint RowCount = 4;
         internal const uint ColumnCount = 4;
 #if NET7_0_OR_GREATER
+
         [UnscopedRef]
 #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal ref Impl AsImpl() => ref Unsafe.As<Matrix4x4D, Impl>(ref this);
 
 #if NET7_0_OR_GREATER
+
         [UnscopedRef]
 #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -35,6 +40,7 @@ namespace Hexa.NET.Mathematics
         internal struct Impl : IEquatable<Impl>
         {
 #if NET7_0_OR_GREATER
+
             [UnscopedRef]
 #endif
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -178,7 +184,6 @@ namespace Hexa.NET.Mathematics
 
                 return result;
             }
-
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static Impl operator *(in Impl left, double right)
@@ -892,7 +897,6 @@ namespace Hexa.NET.Mathematics
                 return result;
             }
 
-
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static Impl CreateViewport(double x, double y, double width, double height, double minDepth, double maxDepth)
             {
@@ -976,6 +980,7 @@ namespace Hexa.NET.Mathematics
                 uint a, b, c;
 
                 #region Ranking
+
                 double x = scales[0];
                 double y = scales[1];
                 double z = scales[2];
@@ -1028,7 +1033,8 @@ namespace Hexa.NET.Mathematics
                         }
                     }
                 }
-                #endregion
+
+                #endregion Ranking
 
                 if (scales[a] < DecomposeEpsilon)
                 {
@@ -1047,6 +1053,7 @@ namespace Hexa.NET.Mathematics
                     fAbsZ = Math.Abs(vectorBasis[a]->Z);
 
                     #region Ranking
+
                     if (fAbsX < fAbsY)
                     {
                         if (fAbsY < fAbsZ)
@@ -1083,7 +1090,8 @@ namespace Hexa.NET.Mathematics
                             }
                         }
                     }
-                    #endregion
+
+                    #endregion Ranking
 
                     *vectorBasis[b] = Vector3D.Cross(*vectorBasis[a], canonicalBasis[cc]);
                 }
@@ -1149,7 +1157,6 @@ namespace Hexa.NET.Mathematics
 #endif
 
                 return SoftwareFallback(in matrix, out result);
-
 
 #if NET5_0_OR_GREATER
                 static unsafe bool AvxImpl(in Impl matrix, out Impl result)
@@ -1749,8 +1756,6 @@ namespace Hexa.NET.Mathematics
                     Vector128<double> t6 = AdvSimd.Arm64.ZipHigh(row5, row7);
                     Vector128<double> t7 = AdvSimd.Arm64.ZipLow(row6, row8);
                     Vector128<double> t8 = AdvSimd.Arm64.ZipHigh(row6, row8);
-
-
 
                     AdvSimd.Store((double*)&result.X, AdvSimd.Arm64.ZipLow(t1, t5));
                     AdvSimd.Store((double*)&result.X + 2, AdvSimd.Arm64.ZipLow(t3, t7));

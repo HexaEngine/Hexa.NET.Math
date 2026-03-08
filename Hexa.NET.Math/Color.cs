@@ -2,6 +2,7 @@
 {
     using System;
     using System.Numerics;
+    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Represents a color using floating-point values for each channel (R, G, B, A).
@@ -72,6 +73,20 @@
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="Color"/> struct with specified channel values.
+        /// </summary>
+        /// <param name="r">The red channel value.</param>
+        /// <param name="g">The green channel value.</param>
+        /// <param name="b">The blue channel value.</param>
+        public Color(byte r, byte g, byte b)
+        {
+            R = r / (float)byte.MaxValue;
+            G = g / (float)byte.MaxValue;
+            B = b / (float)byte.MaxValue;
+            A = 1;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Color"/> struct from an unsigned integer representation.
         /// </summary>
         /// <param name="color">The unsigned integer representation of the color.</param>
@@ -115,6 +130,39 @@
             var g = (float)(color >> 8 & 0xff) / byte.MaxValue;
             var r = (float)(color & 0xff) / byte.MaxValue;
             return new Color(r, g, b, a);
+        }
+
+        public static Color FromHex(string hex)
+        {
+            if (hex.Length < 3) throw new ArgumentException("Invalid hex color code string, string too short.");
+            ReadOnlySpan<char> span = hex[0] == '#' ? hex.AsSpan(1) : hex.AsSpan();
+
+            byte r, g, b, a = 255;
+            if (span.Length == 3)
+            {
+                int ri = HexHelper.HexToInt(span[0]);
+                int gi = HexHelper.HexToInt(span[1]);
+                int bi = HexHelper.HexToInt(span[2]);
+                r = (byte)(ri << 4 | ri);
+                g = (byte)(gi << 4 | gi);
+                b = (byte)(bi << 4 | bi);
+                return new(r, g, b);
+            }
+            else if (span.Length == 6 || span.Length == 8)
+            {
+                r = (byte)HexHelper.HexToInt(span[0], span[1]);
+                g = (byte)HexHelper.HexToInt(span[2], span[3]);
+                b = (byte)HexHelper.HexToInt(span[4], span[5]);
+
+                if (span.Length == 8)
+                {
+                    a = (byte)HexHelper.HexToInt(span[6], span[7]);
+                }
+
+                return new(r, g, b, a);
+            }
+
+            throw new ArgumentException("Invalid hex color code string.");
         }
 
         /// <summary>

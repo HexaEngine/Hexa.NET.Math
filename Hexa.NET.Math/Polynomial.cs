@@ -16,13 +16,17 @@
         /// <param name="degree">The degree of the polynomial.</param>
         public Polynomial(uint degree)
         {
-            // Do not allocate any data if 0.
+            this.degree = degree;
             if (degree == 0)
             {
+                coefficients = null;
                 return;
             }
-            this.degree = degree;
             coefficients = (float*)Marshal.AllocHGlobal((nint)(degree * sizeof(float)));
+            for (uint i = 0; i < degree; i++)
+            {
+                coefficients[i] = 0;
+            }
         }
 
         /// <summary>
@@ -31,14 +35,14 @@
         /// <param name="coefficients">The coefficients of the polynomial.</param>
         public Polynomial(float[] coefficients)
         {
-            // Do not allocate any data if 0.
-            if (coefficients.Length == 0)
+            degree = (uint)coefficients.Length;
+            if (degree == 0)
             {
+                this.coefficients = null;
                 return;
             }
-            degree = (uint)coefficients.Length;
             this.coefficients = (float*)Marshal.AllocHGlobal((nint)(degree * sizeof(float)));
-            for (int i = 0; i < degree; i++)
+            for (uint i = 0; i < degree; i++)
             {
                 this.coefficients[i] = coefficients[i];
             }
@@ -51,14 +55,14 @@
         /// <param name="degree">The degree of the polynomial.</param>
         public Polynomial(float* coefficients, uint degree)
         {
-            // Do not allocate any data if 0.
+            this.degree = degree;
             if (degree == 0)
             {
+                this.coefficients = null;
                 return;
             }
-            this.degree = degree;
             this.coefficients = (float*)Marshal.AllocHGlobal((nint)(degree * sizeof(float)));
-            for (int i = 0; i < degree; i++)
+            for (uint i = 0; i < degree; i++)
             {
                 this.coefficients[i] = coefficients[i];
             }
@@ -81,13 +85,16 @@
         /// <returns>The coefficient at the specified index.</returns>
         public float this[int index]
         {
-            get => coefficients[index];
+            get
+            {
+                if (index < 0 || index >= degree)
+                    throw new IndexOutOfRangeException();
+                return coefficients[index];
+            }
             set
             {
                 if (index < 0 || index >= degree)
-                {
                     throw new IndexOutOfRangeException();
-                }
                 coefficients[index] = value;
             }
         }
@@ -99,13 +106,16 @@
         /// <returns>The coefficient at the specified index.</returns>
         public float this[uint index]
         {
-            get => coefficients[index];
+            get
+            {
+                if (index >= degree)
+                    throw new IndexOutOfRangeException();
+                return coefficients[index];
+            }
             set
             {
                 if (index >= degree)
-                {
                     throw new IndexOutOfRangeException();
-                }
                 coefficients[index] = value;
             }
         }
@@ -119,7 +129,7 @@
         {
             float result = 0;
             float xPow = 1;
-            for (int i = 0; i < degree; i++)
+            for (uint i = 0; i < degree; i++)
             {
                 result += coefficients[i] * xPow;
                 xPow *= x;
@@ -163,7 +173,7 @@
         /// <param name="values">The pointer to the array to store the evaluated values.</param>
         public readonly void Evaluate(float* points, uint count, float* values)
         {
-            for (int i = 0; i < count; i++)
+            for (uint i = 0; i < count; i++)
             {
                 values[i] = Compute(points[i]);
             }
@@ -174,23 +184,23 @@
         /// </summary>
         public void Compact()
         {
+            if (degree == 0 || coefficients == null)
+                return;
             uint newDegree = degree;
-            for (uint i = degree - 1; i >= 0; i--)
+            for (int i = (int)degree - 1; i >= 0; i--)
             {
                 if (coefficients[i] == 0)
-                {
                     newDegree--;
-                }
                 else
-                {
                     break;
-                }
             }
             if (newDegree == degree)
-            {
                 return;
-            }
-            coefficients = (float*)Marshal.ReAllocHGlobal((nint)coefficients, (nint)(newDegree * sizeof(float)));
+            float* newCoeffs = (float*)Marshal.AllocHGlobal((nint)(newDegree * sizeof(float)));
+            for (uint i = 0; i < newDegree; i++)
+                newCoeffs[i] = coefficients[i];
+            Marshal.FreeHGlobal((nint)coefficients);
+            coefficients = newCoeffs;
             degree = newDegree;
         }
 
@@ -200,40 +210,28 @@
         /// <returns>The symmetry of the polynomial.</returns>
         public readonly PolynomialSymmetry GetSymmetry()
         {
-            bool isFirstSet = coefficients[0] != 0;
-
-            bool coeffsAllOdd = true;
-            bool coeffsAllEven = true;
-
-            for (int i = 1; i < degree; i++)
+            if (degree == 0 || coefficients == null)
+                return PolynomialSymmetry.None;
+            bool isEven = true, isOdd = true;
+            for (uint i = 0; i < degree; i++)
             {
-                float coeff = coefficients[i];
-                bool isEven = coeff % 2 == 0;
-                if (isEven)
+                if (i % 2 == 0)
                 {
-                    coeffsAllOdd = false;
+                    if (i != 0 && coefficients[i] != 0)
+                        isOdd = false;
                 }
                 else
                 {
-                    coeffsAllEven = false;
+                    if (coefficients[i] != 0)
+                        isEven = false;
                 }
             }
-
-            if (coeffsAllEven)
-            {
-                return PolynomialSymmetry.Even;
-            }
-
-            if (!isFirstSet && coeffsAllOdd)
-            {
-                return PolynomialSymmetry.Odd;
-            }
-
+            if (isEven) return PolynomialSymmetry.Even;
+            if (isOdd) return PolynomialSymmetry.Odd;
             return PolynomialSymmetry.None;
         }
 
 #if NET5_0_OR_GREATER
-
         /// <summary>
         /// Finds the roots of the polynomial.
         /// </summary>
@@ -242,14 +240,8 @@
         public readonly float[] FindRoots(out int foundRoots)
         {
             foundRoots = 0;
-
-            // Doesn't exist, invalid.
-            if (degree == 0)
-            {
+            if (degree == 0 || coefficients == null)
                 return [];
-            }
-
-            // Constant equation
             if (degree == 1)
             {
                 float c = coefficients[0];
@@ -258,39 +250,31 @@
                     foundRoots = 1;
                     return [0];
                 }
+                return [];
             }
-
-            // Linear equation
             if (degree == 2)
             {
-                float b = coefficients[0];
-                float a = coefficients[1];
-                if (a == 0)
+                float c = coefficients[0];
+                float b = coefficients[1];
+                if (b == 0)
                 {
-                    if (b == 0)
+                    if (c == 0)
                     {
                         foundRoots = 1;
                         return [0];
                     }
-
                     return [];
                 }
-
                 foundRoots = 1;
-                return [(a / -b)];
+                return [(-c / b)];
             }
-
-            // Quadratic equation
             if (degree == 3)
             {
                 float c = coefficients[0];
                 float b = coefficients[1];
                 float a = coefficients[2];
-
-                // if a == 0 then it's a linear function.
                 if (a == 0)
                 {
-                    // b == 0 then it's a constant function.
                     if (b == 0)
                     {
                         if (c == 0)
@@ -298,23 +282,18 @@
                             foundRoots = 1;
                             return [0];
                         }
-
                         return [];
                     }
-
                     foundRoots = 1;
-                    return [(b / -c)];
+                    return [(-c / b)];
                 }
-
                 float discriminant = b * b - 4 * a * c;
                 if (discriminant < 0)
-                {
                     return [];
-                }
                 else if (discriminant == 0)
                 {
                     foundRoots = 1;
-                    return [-b / (2 * a)];
+                    return [(-b) / (2 * a)];
                 }
                 else
                 {
@@ -325,51 +304,31 @@
                     return [root1, root2];
                 }
             }
-
-            const float tolerance = 0.000000000000000000000001f;
+            const float tolerance = 1e-12f;
             Stack<Interval> walkStack = new();
             float[] roots = new float[degree];
-
             PolynomialSymmetry symmetry = GetSymmetry();
-
-            // Determine the leading coefficient
             float leadingCoefficient = coefficients[degree - 1];
-
-            // Set the initial step size based on the leading coefficient
             float step = 1.0f;
-
             float x = 1.0f;
             float xLast = 0.0f;
-
             if (symmetry == PolynomialSymmetry.None)
             {
                 while (foundRoots < degree)
                 {
                     float negX = -x;
                     float negXLast = -xLast;
-
                     Interval negInterval = new(negXLast, negX, default, default);
                     Interval interval = new(xLast, x, default, default);
-
                     if (SignChange(negInterval))
-                    {
-                        walkStack.Push(interval);
-                    }
-
+                        walkStack.Push(negInterval);
                     if (SignChange(interval))
-                    {
                         walkStack.Push(interval);
-                    }
-
                     FindRootsSubStep(ref foundRoots, walkStack, roots);
-
                     x += step;
                     xLast = x;
-
                     if (x >= float.MaxValue)
-                    {
                         break;
-                    }
                 }
             }
             else
@@ -377,68 +336,44 @@
                 while (foundRoots < degree)
                 {
                     Interval interval = new(xLast, x, default, default);
-
                     if (SignChange(interval, out _, out var y1))
-                    {
                         walkStack.Push(interval);
-                    }
-
                     FindRootsSubStepSym(ref foundRoots, walkStack, roots);
-
                     float y = leadingCoefficient * MathF.Pow(x, degree - 1);
-
-                    // Early exit.
                     if (y - y1 >= tolerance)
-                    {
                         break;
-                    }
-
                     x += step;
                     xLast = x;
-
                     if (x >= float.MaxValue)
-                    {
                         break;
-                    }
                 }
             }
-
             return roots;
         }
 
         private readonly int FindRootsSubStep(ref int foundRoots, Stack<Interval> walkStack, float[] roots)
         {
-            const float tolerance = 0.000000000000000000000001f;
+            const float tolerance = 1e-12f;
             while (walkStack.TryPop(out var current))
             {
                 current.Split(out var a, out var b);
                 if (SignChange(a))
                 {
                     if (a.Length <= tolerance)
-                    {
                         roots[foundRoots++] = a.Midpoint;
-                    }
                     else
-                    {
                         walkStack.Push(a);
-                    }
                 }
                 if (SignChange(b))
                 {
                     if (b.Length <= tolerance)
-                    {
                         roots[foundRoots++] = b.Midpoint;
-                    }
                     else
-                    {
                         walkStack.Push(b);
-                    }
                 }
             }
-
             return foundRoots;
         }
-
 
         private readonly int FindRootsSubStepSym(ref int foundRoots, Stack<Interval> walkStack, float[] roots)
         {
@@ -454,9 +389,7 @@
                         roots[foundRoots++] = -a.Midpoint;
                     }
                     else
-                    {
                         walkStack.Push(a);
-                    }
                 }
                 if (SignChange(b))
                 {
@@ -466,12 +399,9 @@
                         roots[foundRoots++] = -b.Midpoint;
                     }
                     else
-                    {
                         walkStack.Push(b);
-                    }
                 }
             }
-
             return foundRoots;
         }
 #endif
@@ -496,15 +426,7 @@
         {
             float y0 = Compute(start);
             float y1 = Compute(end);
-            if (y0 > 0 && y1 > 0)
-            {
-                return false;
-            }
-            if (y0 < 0 && y1 < 0)
-            {
-                return false;
-            }
-            return true;
+            return (y0 > 0 && y1 < 0) || (y0 < 0 && y1 > 0) || y0 == 0 || y1 == 0;
         }
 
         /// <summary>
@@ -531,15 +453,7 @@
         {
             y0 = Compute(start);
             y1 = Compute(end);
-            if (y0 > 0 && y1 > 0)
-            {
-                return false;
-            }
-            if (y0 < 0 && y1 < 0)
-            {
-                return false;
-            }
-            return true;
+            return (y0 > 0 && y1 < 0) || (y0 < 0 && y1 > 0) || y0 == 0 || y1 == 0;
         }
 
         /// <summary>
@@ -548,13 +462,13 @@
         /// <returns>The derivative of the polynomial.</returns>
         public readonly Polynomial Derivative()
         {
+            if (degree <= 1 || coefficients == null)
+                return new Polynomial(1);
             Polynomial polynomial = new(degree - 1);
-
-            for (int i = 0, j = 1; j < degree; i++, j++)
+            for (uint i = 1; i < degree; i++)
             {
-                polynomial.coefficients[i] = coefficients[j] * j;
+                polynomial[i - 1] = coefficients[i] * i;
             }
-
             return polynomial;
         }
 
@@ -566,7 +480,7 @@
         {
             Polynomial result = new(degree + 1);
             result[0] = 0;
-            for (int i = 1; i <= result.Degree; i++)
+            for (uint i = 1; i <= degree; i++)
             {
                 result[i] = coefficients[i - 1] / i;
             }
@@ -581,7 +495,7 @@
         public readonly Polynomial Scale(float scalar)
         {
             Polynomial result = new(degree);
-            for (int i = 0; i <= degree; i++)
+            for (uint i = 0; i < degree; i++)
             {
                 result[i] = coefficients[i] * scalar;
             }
@@ -596,16 +510,14 @@
         /// <returns>The sum of the two polynomials.</returns>
         public static Polynomial Add(Polynomial p1, Polynomial p2)
         {
-            uint degree = Math.Max(p1.Degree, p2.Degree);
-            Polynomial result = new(degree);
-
-            for (int i = 0; i <= degree; i++)
+            uint maxDegree = Math.Max(p1.Degree, p2.Degree);
+            Polynomial result = new(maxDegree);
+            for (uint i = 0; i < maxDegree; i++)
             {
-                float coef1 = i <= p1.Degree ? p1[i] : 0;
-                float coef2 = i <= p2.Degree ? p2[i] : 0;
+                float coef1 = i < p1.Degree ? p1[i] : 0;
+                float coef2 = i < p2.Degree ? p2[i] : 0;
                 result[i] = coef1 + coef2;
             }
-
             return result;
         }
 
@@ -617,16 +529,14 @@
         /// <returns>The result of subtracting the second polynomial from the first.</returns>
         public static Polynomial Subtract(Polynomial p1, Polynomial p2)
         {
-            uint degree = Math.Max(p1.Degree, p2.Degree);
-            Polynomial result = new(degree);
-
-            for (int i = 0; i <= degree; i++)
+            uint maxDegree = Math.Max(p1.Degree, p2.Degree);
+            Polynomial result = new(maxDegree);
+            for (uint i = 0; i < maxDegree; i++)
             {
-                float coef1 = i <= p1.Degree ? p1[i] : 0;
-                float coef2 = i <= p2.Degree ? p2[i] : 0;
+                float coef1 = i < p1.Degree ? p1[i] : 0;
+                float coef2 = i < p2.Degree ? p2[i] : 0;
                 result[i] = coef1 - coef2;
             }
-
             return result;
         }
 
@@ -638,17 +548,15 @@
         /// <returns>The product of the two polynomials.</returns>
         public static Polynomial Multiply(Polynomial p1, Polynomial p2)
         {
-            uint degree = p1.Degree + p2.Degree;
+            uint degree = p1.Degree + p2.Degree - 1;
             Polynomial result = new(degree);
-
-            for (int i = 0; i <= p1.Degree; i++)
+            for (uint i = 0; i < p1.Degree; i++)
             {
-                for (int j = 0; j <= p2.Degree; j++)
+                for (uint j = 0; j < p2.Degree; j++)
                 {
                     result[i + j] += p1[i] * p2[j];
                 }
             }
-
             return result;
         }
 
@@ -663,45 +571,29 @@
         {
             uint dividendDegree = dividend.Degree;
             uint divisorDegree = divisor.Degree;
-
-            if (divisorDegree == 0 && divisor[0] == 0)
-            {
+            if (divisorDegree == 0 || (divisorDegree == 1 && divisor[0] == 0))
                 throw new DivideByZeroException("Polynomial division by zero.");
-            }
-
             if (dividendDegree < divisorDegree)
             {
                 remainder = dividend;
-                return new Polynomial(0); // Return a polynomial of degree 0 with 0 coefficient
+                return new Polynomial(1);
             }
-
-            float* quotientCoefficients = (float*)Marshal.AllocHGlobal((nint)((dividendDegree - divisorDegree + 1) * sizeof(float)));
-
-            // Copy the coefficients to avoid modifying the original
-            float* dividendCoefficients = (float*)Marshal.AllocHGlobal((nint)(dividendDegree * sizeof(float)));
+            uint quotientDegree = dividendDegree - divisorDegree + 1;
+            Polynomial quotient = new(quotientDegree);
+            Polynomial rem = new(dividendDegree);
             for (uint i = 0; i < dividendDegree; i++)
+                rem[i] = dividend[i];
+            for (int i = (int)dividendDegree - 1; i >= (int)divisorDegree - 1; i--)
             {
-                dividendCoefficients[i] = dividend.Coefficients[i];
+                float coef = rem[i] / divisor[divisorDegree - 1];
+                quotient[i - (int)divisorDegree + 1] = coef;
+                for (int j = 0; j < divisorDegree; j++)
+                    rem[i - j] -= coef * divisor[divisorDegree - 1 - (uint)j];
             }
-
-            for (uint i = dividendDegree - divisorDegree; i >= 0; i--)
-            {
-                quotientCoefficients[i] = dividendCoefficients[i + divisorDegree] / divisor[divisorDegree];
-
-                for (uint j = 0; j <= divisorDegree; j++)
-                {
-                    dividendCoefficients[i + j] -= quotientCoefficients[i] * divisor[j];
-                }
-            }
-
-            remainder.degree = dividendDegree - divisorDegree;
-            remainder.coefficients = dividendCoefficients;
-
-            Polynomial result = default;
-            result.degree = remainder.degree;
-            result.coefficients = quotientCoefficients;
-
-            return result;
+            remainder = new(divisorDegree - 1);
+            for (uint i = 0; i < divisorDegree - 1; i++)
+                remainder[i] = rem[i];
+            return quotient;
         }
 
         /// <summary>
@@ -709,6 +601,7 @@
         /// </summary>
         public void Release()
         {
+            if (coefficients == null) return;
             Marshal.FreeHGlobal((nint)coefficients);
             coefficients = null;
             degree = 0;

@@ -1,4 +1,5 @@
 ﻿#if !MINIMAL
+
 namespace Hexa.NET.Mathematics
 {
     using System.Numerics;
@@ -6,7 +7,7 @@ namespace Hexa.NET.Mathematics
     /// <summary>
     /// Represents a 3D orientation for 3D Audio.
     /// </summary>
-    public struct AudioOrientation
+    public struct AudioOrientation : IEquatable<AudioOrientation>
     {
         /// <summary>
         /// The look at vector normalized also called forward vector.
@@ -28,6 +29,33 @@ namespace Hexa.NET.Mathematics
             At = at;
             Up = up;
         }
+
+        public override readonly bool Equals(object? obj)
+        {
+            return obj is AudioOrientation orientation && Equals(orientation);
+        }
+
+        public readonly bool Equals(AudioOrientation other)
+        {
+            return At.Equals(other.At) &&
+                   Up.Equals(other.Up);
+        }
+
+        public override readonly int GetHashCode()
+        {
+            return HashCode.Combine(At, Up);
+        }
+
+        public static bool operator ==(AudioOrientation left, AudioOrientation right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(AudioOrientation left, AudioOrientation right)
+        {
+            return !(left == right);
+        }
     }
 }
+
 #endif
